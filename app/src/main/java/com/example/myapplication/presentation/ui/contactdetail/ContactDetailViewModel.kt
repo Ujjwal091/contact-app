@@ -2,7 +2,6 @@ package com.example.myapplication.presentation.ui.contactdetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.domain.entity.Contact
 import com.example.myapplication.domain.usecase.DeleteContactUseCase
 import com.example.myapplication.domain.usecase.GetContactByIdUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +10,7 @@ import kotlinx.coroutines.launch
 
 /**
  * ViewModel for the contact detail screen
- * 
+ *
  * @param getContactByIdUseCase Use case to get a contact by ID
  * @param deleteContactUseCase Use case to delete a contact
  */
@@ -25,7 +24,7 @@ class ContactDetailViewModel(
 
     /**
      * Loads a contact by ID
-     * 
+     *
      * @param contactId The ID of the contact to load
      */
     fun loadContact(contactId: String) {
@@ -46,7 +45,7 @@ class ContactDetailViewModel(
 
     /**
      * Deletes the current contact
-     * 
+     *
      * @param contactId The ID of the contact to delete
      * @param onSuccess Callback when deletion is successful
      */

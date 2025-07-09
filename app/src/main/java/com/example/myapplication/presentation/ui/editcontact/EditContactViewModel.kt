@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 /**
  * ViewModel for the edit contact screen
- * 
+ *
  * @param getContactByIdUseCase Use case to get a contact by ID
  * @param updateContactUseCase Use case to update a contact
  */
@@ -25,7 +25,7 @@ class EditContactViewModel(
 
     /**
      * Loads a contact by ID
-     * 
+     *
      * @param contactId The ID of the contact to load
      */
     fun loadContact(contactId: String) {
@@ -46,7 +46,7 @@ class EditContactViewModel(
 
     /**
      * Updates a contact
-     * 
+     *
      * @param contactId The ID of the contact to update
      * @param name The updated name
      * @param phone The updated phone number
@@ -58,24 +58,24 @@ class EditContactViewModel(
             _state.value = EditContactState.Error("Name cannot be empty")
             return
         }
-        
+
         if (phone.isBlank()) {
             _state.value = EditContactState.Error("Phone number cannot be empty")
             return
         }
-        
+
         viewModelScope.launch {
             try {
                 _state.value = EditContactState.Loading
-                
+
                 val contact = Contact(
                     id = contactId,
                     name = name,
                     phone = phone
                 )
-                
+
                 val success = updateContactUseCase(contact)
-                
+
                 if (success) {
                     _state.value = EditContactState.Success
                     onSuccess()

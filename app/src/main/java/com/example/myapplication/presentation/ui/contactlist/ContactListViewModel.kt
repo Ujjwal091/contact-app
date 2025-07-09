@@ -20,7 +20,7 @@ class ContactListViewModel(
                 _state.value = ContactListState.Loading
                 val contacts = getAllContactsUseCase()
                 _state.value = ContactListState.Success(contacts)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 _state.value = ContactListState.Error("Failed to load contacts")
             }
         }

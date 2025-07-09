@@ -7,11 +7,11 @@ import com.example.myapplication.domain.usecase.AddContactUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
+import java.util.*
 
 /**
  * ViewModel for the add contact screen
- * 
+ *
  * @param addContactUseCase Use case to add a contact
  */
 class AddContactViewModel(
@@ -23,7 +23,7 @@ class AddContactViewModel(
 
     /**
      * Adds a new contact
-     * 
+     *
      * @param name The name of the contact
      * @param phone The phone number of the contact
      * @param onSuccess Callback when addition is successful
@@ -34,24 +34,24 @@ class AddContactViewModel(
             _state.value = AddContactState.Error("Name cannot be empty")
             return
         }
-        
+
         if (phone.isBlank()) {
             _state.value = AddContactState.Error("Phone number cannot be empty")
             return
         }
-        
+
         viewModelScope.launch {
             try {
                 _state.value = AddContactState.Loading
-                
+
                 val contact = Contact(
                     id = UUID.randomUUID().toString(), // Generate a unique ID
                     name = name,
                     phone = phone
                 )
-                
+
                 val success = addContactUseCase(contact)
-                
+
                 if (success) {
                     _state.value = AddContactState.Success
                     onSuccess()
@@ -63,7 +63,7 @@ class AddContactViewModel(
             }
         }
     }
-    
+
     /**
      * Resets the state to initial
      */

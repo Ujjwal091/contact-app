@@ -14,7 +14,7 @@ class ContactRepositoryImpl(
         dataSource.fetchAllContacts().map { it.toDomain() }
 
     override suspend fun getContactById(id: String): Contact? =
-        dataSource.fetchAllContacts().firstOrNull { it.id == id }?.toDomain()
+        dataSource.fetchContactById(id)?.toDomain()
 
     override suspend fun addContact(contact: Contact): Boolean =
         dataSource.addContact(contact.toModel())

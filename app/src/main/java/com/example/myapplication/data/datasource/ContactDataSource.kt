@@ -32,6 +32,10 @@ class ContactDataSource(private val contentResolver: ContentResolver) {
         return contacts
     }
 
+    fun fetchContactById(id: String): ContactModel? {
+        return null
+    }
+
     fun addContact(contact: ContactModel): Boolean {
         try {
             val values = ContentValues().apply {
@@ -74,7 +78,7 @@ class ContactDataSource(private val contentResolver: ContentResolver) {
 
     /**
      * Updates an existing contact in the device's contacts database.
-     * 
+     *
      * @param contact The contact model containing updated information
      * @return true if the update was successful, false otherwise
      */
@@ -128,7 +132,7 @@ class ContactDataSource(private val contentResolver: ContentResolver) {
 
     /**
      * Gets the raw contact ID for a given contact ID.
-     * 
+     *
      * @param contactId The contact ID
      * @return The raw contact ID, or null if not found
      */

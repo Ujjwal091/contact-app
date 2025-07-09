@@ -6,9 +6,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.myapplication.presentation.ui.contactlist.ContactListScreen
-import com.example.myapplication.presentation.ui.contactdetail.ContactDetailScreen
 import com.example.myapplication.presentation.ui.addcontact.AddContactScreen
+import com.example.myapplication.presentation.ui.contactdetail.ContactDetailScreen
+import com.example.myapplication.presentation.ui.contactlist.ContactListScreen
 import com.example.myapplication.presentation.ui.editcontact.EditContactScreen
 
 /**
@@ -19,6 +19,7 @@ sealed class Screen(val route: String) {
     object ContactDetail : Screen("contactDetail/{contactId}") {
         fun createRoute(contactId: String) = "contactDetail/$contactId"
     }
+
     object AddContact : Screen("addContact")
     object EditContact : Screen("editContact/{contactId}") {
         fun createRoute(contactId: String) = "editContact/$contactId"
@@ -27,7 +28,7 @@ sealed class Screen(val route: String) {
 
 /**
  * Main navigation component for the application
- * 
+ *
  * @param navController The navigation controller
  * @param startDestination The starting destination route
  */

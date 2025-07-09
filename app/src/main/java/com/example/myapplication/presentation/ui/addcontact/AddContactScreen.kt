@@ -10,17 +10,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.example.myapplication.domain.usecase.AddContactUseCase
-import com.example.myapplication.data.repository.ContactRepositoryImpl
-import com.example.myapplication.data.datasource.ContactDataSource
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * Screen that allows users to add a new contact
- * 
+ *
  * @param onBackClick Callback when the back button is clicked
  * @param onContactAdded Callback when a contact is successfully added
  * @param viewModel The view model for this screen
@@ -30,27 +27,19 @@ import com.example.myapplication.data.datasource.ContactDataSource
 fun AddContactScreen(
     onBackClick: () -> Unit,
     onContactAdded: () -> Unit,
-    viewModel: AddContactViewModel = AddContactViewModel(
-        addContactUseCase = AddContactUseCase(
-            repository = ContactRepositoryImpl(
-                dataSource = ContactDataSource(
-                    contentResolver = LocalContext.current.contentResolver
-                )
-            )
-        )
-    )
+    viewModel: AddContactViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var showErrorDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
-    
+
     // Reset state when entering the screen
     LaunchedEffect(Unit) {
         viewModel.resetState()
     }
-    
+
     // Handle state changes
     LaunchedEffect(state) {
         when (state) {
@@ -58,13 +47,15 @@ fun AddContactScreen(
                 errorMessage = (state as AddContactState.Error).message
                 showErrorDialog = true
             }
+
             is AddContactState.Success -> {
                 onContactAdded()
             }
+
             else -> {}
         }
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -109,7 +100,7 @@ fun AddContactScreen(
                     ),
                     singleLine = true
                 )
-                
+
                 // Phone field
                 OutlinedTextField(
                     value = phone,
@@ -130,9 +121,9 @@ fun AddContactScreen(
                     ),
                     singleLine = true
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Save button
                 Button(
                     onClick = {
@@ -145,7 +136,7 @@ fun AddContactScreen(
                     Text("Save Contact")
                 }
             }
-            
+
             // Loading indicator
             if (state is AddContactState.Loading) {
                 CircularProgressIndicator(
@@ -154,7 +145,7 @@ fun AddContactScreen(
             }
         }
     }
-    
+
     // Error dialog
     if (showErrorDialog) {
         AlertDialog(

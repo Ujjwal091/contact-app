@@ -10,18 +10,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.example.myapplication.domain.usecase.GetContactByIdUseCase
-import com.example.myapplication.domain.usecase.UpdateContactUseCase
-import com.example.myapplication.data.repository.ContactRepositoryImpl
-import com.example.myapplication.data.datasource.ContactDataSource
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * Screen that allows users to edit an existing contact
- * 
+ *
  * @param contactId The ID of the contact to edit
  * @param onBackClick Callback when the back button is clicked
  * @param onContactUpdated Callback when a contact is successfully updated
@@ -33,34 +29,19 @@ fun EditContactScreen(
     contactId: String,
     onBackClick: () -> Unit,
     onContactUpdated: () -> Unit,
-    viewModel: EditContactViewModel = EditContactViewModel(
-        getContactByIdUseCase = GetContactByIdUseCase(
-            repository = ContactRepositoryImpl(
-                dataSource = ContactDataSource(
-                    contentResolver = LocalContext.current.contentResolver
-                )
-            )
-        ),
-        updateContactUseCase = UpdateContactUseCase(
-            repository = ContactRepositoryImpl(
-                dataSource = ContactDataSource(
-                    contentResolver = LocalContext.current.contentResolver
-                )
-            )
-        )
-    )
+    viewModel: EditContactViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var showErrorDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
-    
+
     // Load contact when entering the screen
     LaunchedEffect(contactId) {
         viewModel.loadContact(contactId)
     }
-    
+
     // Update UI when state changes
     LaunchedEffect(state) {
         when (state) {
@@ -69,17 +50,20 @@ fun EditContactScreen(
                 name = contact.name
                 phone = contact.phone
             }
+
             is EditContactState.Error -> {
                 errorMessage = (state as EditContactState.Error).message
                 showErrorDialog = true
             }
+
             is EditContactState.Success -> {
                 onContactUpdated()
             }
+
             else -> {}
         }
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -106,7 +90,7 @@ fun EditContactScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-                
+
                 is EditContactState.NotFound -> {
                     Column(
                         modifier = Modifier
@@ -125,7 +109,7 @@ fun EditContactScreen(
                         }
                     }
                 }
-                
+
                 else -> {
                     Column(
                         modifier = Modifier
@@ -151,7 +135,7 @@ fun EditContactScreen(
                             ),
                             singleLine = true
                         )
-                        
+
                         // Phone field
                         OutlinedTextField(
                             value = phone,
@@ -172,9 +156,9 @@ fun EditContactScreen(
                             ),
                             singleLine = true
                         )
-                        
+
                         Spacer(modifier = Modifier.height(16.dp))
-                        
+
                         // Save button
                         Button(
                             onClick = {
@@ -191,7 +175,7 @@ fun EditContactScreen(
             }
         }
     }
-    
+
     // Error dialog
     if (showErrorDialog) {
         AlertDialog(

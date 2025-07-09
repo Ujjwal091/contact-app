@@ -53,6 +53,11 @@ dependencies {
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
+    // Koin for Dependency Injection
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+
     // Permissions
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
     testImplementation(libs.junit)

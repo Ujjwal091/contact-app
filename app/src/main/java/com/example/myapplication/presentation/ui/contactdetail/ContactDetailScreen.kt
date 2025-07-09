@@ -7,28 +7,18 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.domain.entity.Contact
-import com.example.myapplication.domain.usecase.DeleteContactUseCase
-import com.example.myapplication.domain.usecase.GetContactByIdUseCase
-import com.example.myapplication.data.repository.ContactRepositoryImpl
-import com.example.myapplication.data.datasource.ContactDataSource
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * Screen that displays the details of a contact
- * 
+ *
  * @param contactId The ID of the contact to display
  * @param onBackClick Callback when the back button is clicked
  * @param onEditClick Callback when the edit button is clicked
@@ -40,30 +30,15 @@ fun ContactDetailScreen(
     contactId: String,
     onBackClick: () -> Unit,
     onEditClick: (String) -> Unit,
-    viewModel: ContactDetailViewModel = ContactDetailViewModel(
-        getContactByIdUseCase = GetContactByIdUseCase(
-            repository = ContactRepositoryImpl(
-                dataSource = ContactDataSource(
-                    contentResolver = LocalContext.current.contentResolver
-                )
-            )
-        ),
-        deleteContactUseCase = DeleteContactUseCase(
-            repository = ContactRepositoryImpl(
-                dataSource = ContactDataSource(
-                    contentResolver = LocalContext.current.contentResolver
-                )
-            )
-        )
-    )
+    viewModel: ContactDetailViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
-    
+
     LaunchedEffect(contactId) {
         viewModel.loadContact(contactId)
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -104,12 +79,12 @@ fun ContactDetailScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-                
+
                 is ContactDetailState.Success -> {
                     val contact = (state as ContactDetailState.Success).contact
                     ContactDetails(contact = contact)
                 }
-                
+
                 is ContactDetailState.Error -> {
                     Column(
                         modifier = Modifier
@@ -130,7 +105,7 @@ fun ContactDetailScreen(
                         )
                     }
                 }
-                
+
                 is ContactDetailState.NotFound -> {
                     Column(
                         modifier = Modifier
@@ -149,7 +124,7 @@ fun ContactDetailScreen(
             }
         }
     }
-    
+
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
@@ -178,7 +153,7 @@ fun ContactDetailScreen(
 
 /**
  * Composable that displays the details of a contact
- * 
+ *
  * @param contact The contact to display
  */
 @Composable
@@ -209,7 +184,7 @@ fun ContactDetails(contact: Contact) {
                 )
             }
         }
-        
+
         // Name
         Text(
             text = contact.name,
@@ -217,7 +192,7 @@ fun ContactDetails(contact: Contact) {
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        
+
         // Phone
         Row(
             verticalAlignment = Alignment.CenterVertically,
