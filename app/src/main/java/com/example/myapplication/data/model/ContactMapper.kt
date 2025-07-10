@@ -5,8 +5,8 @@ import com.example.myapplication.domain.entity.Contact
 
 fun ContactModel.toDomain(): Contact =
     Contact(
-        id = id, 
-        name = name, 
+        id = id,
+        name = name,
         phone = phone,
         email = email,
         address = address,
@@ -16,8 +16,8 @@ fun ContactModel.toDomain(): Contact =
 
 fun Contact.toModel(): ContactModel =
     ContactModel(
-        id = id, 
-        name = name, 
+        id = id,
+        name = name,
         phone = phone,
         email = email,
         address = address,

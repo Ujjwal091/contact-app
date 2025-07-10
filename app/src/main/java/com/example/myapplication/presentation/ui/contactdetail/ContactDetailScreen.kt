@@ -1,25 +1,18 @@
 package com.example.myapplication.presentation.ui.contactdetail
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.myapplication.domain.entity.Contact
+import com.example.myapplication.presentation.ui.contactdetail.component.ContactDetailContent
+import com.example.myapplication.presentation.ui.contactdetail.component.ContactDetailTopBar
+import com.example.myapplication.presentation.ui.contactdetail.component.ContactDetails
+import com.example.myapplication.presentation.ui.contactdetail.component.DeleteContactDialog
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -47,30 +40,10 @@ fun ContactDetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Contact Details") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { onEditClick(contactId) }) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit Contact"
-                        )
-                    }
-                    IconButton(onClick = { showDeleteDialog = true }) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete Contact"
-                        )
-                    }
-                }
+            ContactDetailTopBar(
+                onBackClick = onBackClick,
+                onEditClick = { onEditClick(contactId) },
+                onDeleteClick = { showDeleteDialog = true }
             )
         }
     ) { padding ->
@@ -79,222 +52,52 @@ fun ContactDetailScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            when (state) {
-                is ContactDetailState.Loading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-
-                is ContactDetailState.Success -> {
-                    val contact = (state as ContactDetailState.Success).contact
-                    ContactDetails(contact = contact)
-                }
-
-                is ContactDetailState.Error -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Error",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = (state as ContactDetailState.Error).message,
-                            fontSize = 16.sp
-                        )
-                    }
-                }
-
-                is ContactDetailState.NotFound -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Contact Not Found",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            }
+            ContactDetailContent(state = state)
         }
     }
 
     if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete Contact") },
-            text = { Text("Are you sure you want to delete this contact?") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.deleteContact(contactId) {
-                            showDeleteDialog = false
-                            onBackClick()
-                        }
-                    }
-                ) {
-                    Text("Delete")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancel")
+        DeleteContactDialog(
+            onDismiss = { showDeleteDialog = false },
+            onConfirm = {
+                viewModel.deleteContact(contactId) {
+                    showDeleteDialog = false
+                    onBackClick()
                 }
             }
         )
     }
 }
 
-/**
- * Composable that displays the details of a contact
- *
- * @param contact The contact to display
- */
+@Preview(showBackground = true)
 @Composable
-fun ContactDetails(contact: Contact) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
-        // Contact avatar or placeholder
+fun ContactDetailScreenPreview() {
+    val previewContact = Contact(
+        id = "1",
+        name = "John Doe",
+        phone = "+1 123 456 7890",
+        email = "john.doe@example.com",
+        address = "123 Main St, Anytown, USA",
+        company = "Example Corp"
+    )
+
+
+    Scaffold(
+        topBar = {
+            ContactDetailTopBar(
+                onBackClick = {},
+                onEditClick = {},
+                onDeleteClick = {}
+            )
+        }
+    ) { padding ->
         Box(
             modifier = Modifier
-                .size(120.dp)
-                .align(Alignment.CenterHorizontally)
-                .padding(bottom = 16.dp),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
+                .padding(padding)
         ) {
-            Surface(
-                modifier = Modifier.size(120.dp),
-                shape = MaterialTheme.shapes.large,
-                color = MaterialTheme.colorScheme.primaryContainer
-            ) {
-                Text(
-                    text = contact.name.first().toString(),
-                    modifier = Modifier.align(Alignment.Center),
-                    fontSize = 48.sp,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-        }
-
-        // Name
-        Text(
-            text = contact.name,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Contact Information Card
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            )
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(
-                    text = "Contact Information",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-
-                // Phone
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Phone,
-                        contentDescription = "Phone",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Text(
-                        text = contact.phone,
-                        fontSize = 16.sp
-                    )
-                }
-
-                // Email
-                contact.email?.let { email ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Email,
-                            contentDescription = "Email",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            text = email,
-                            fontSize = 16.sp
-                        )
-                    }
-                }
-
-                // Address
-                contact.address?.let { address ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Address",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            text = address,
-                            fontSize = 16.sp
-                        )
-                    }
-                }
-
-                // Company
-                contact.company?.let { company ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Company",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            text = company,
-                            fontSize = 16.sp
-                        )
-                    }
-                }
-            }
+            ContactDetails(contact = previewContact)
         }
     }
+
 }

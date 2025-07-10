@@ -12,6 +12,8 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
 
     override fun fetchAllContacts(): List<ContactModel> {
         val contactsMap = mutableMapOf<String, ContactModel>()
+
+        // First, get basic contact info (ID, name, phone)
         val cursor = contentResolver.query(
             ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
             null, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
@@ -39,14 +41,8 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
             }
         }
 
-        // For each contact, fetch additional details
-        contactsMap.values.forEach { contact ->
-            val detailedContact = fetchContactById(contact.id)
-            if (detailedContact != null) {
-                contactsMap[contact.id] = detailedContact
-            }
-        }
-
+        // Return the basic contact info without fetching additional details
+        // This makes the initial load much faster
         return contactsMap.values.toList()
     }
 
@@ -139,7 +135,8 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
 
         addressCursor?.use {
             if (it.moveToFirst()) {
-                val addressIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS)
+                val addressIndex =
+                    it.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS)
                 if (addressIndex != -1) {
                     address = it.getString(addressIndex)
                 }
@@ -217,9 +214,15 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
             contact.address?.let { address ->
                 val addressValues = ContentValues().apply {
                     put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
-                    put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE)
+                    put(
+                        ContactsContract.Data.MIMETYPE,
+                        ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE
+                    )
                     put(ContactsContract.CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS, address)
-                    put(ContactsContract.CommonDataKinds.StructuredPostal.TYPE, ContactsContract.CommonDataKinds.StructuredPostal.TYPE_HOME)
+                    put(
+                        ContactsContract.CommonDataKinds.StructuredPostal.TYPE,
+                        ContactsContract.CommonDataKinds.StructuredPostal.TYPE_HOME
+                    )
                 }
                 contentResolver.insert(ContactsContract.Data.CONTENT_URI, addressValues)
             }
@@ -230,7 +233,10 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
                     put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
                     put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE)
                     put(ContactsContract.CommonDataKinds.Organization.COMPANY, company)
-                    put(ContactsContract.CommonDataKinds.Organization.TYPE, ContactsContract.CommonDataKinds.Organization.TYPE_WORK)
+                    put(
+                        ContactsContract.CommonDataKinds.Organization.TYPE,
+                        ContactsContract.CommonDataKinds.Organization.TYPE_WORK
+                    )
                 }
                 contentResolver.insert(ContactsContract.Data.CONTENT_URI, companyValues)
             }
@@ -315,7 +321,7 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
                     null
                 )
 
-                if (emailCursor?.use { it.count } ?: 0 > 0) {
+                if ((emailCursor?.use { it.count } ?: 0) > 0) {
                     // Update existing email
                     val emailUpdateCount = contentResolver.update(
                         ContactsContract.Data.CONTENT_URI,
@@ -329,7 +335,10 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
                     emailValues.apply {
                         put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
                         put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
-                        put(ContactsContract.CommonDataKinds.Email.TYPE, ContactsContract.CommonDataKinds.Email.TYPE_HOME)
+                        put(
+                            ContactsContract.CommonDataKinds.Email.TYPE,
+                            ContactsContract.CommonDataKinds.Email.TYPE_HOME
+                        )
                     }
                     val emailUri = contentResolver.insert(ContactsContract.Data.CONTENT_URI, emailValues)
                     updateSuccess = updateSuccess || (emailUri != null)
@@ -338,7 +347,8 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
 
             // Update or add address
             contact.address?.let { address ->
-                val addressWhere = "${ContactsContract.Data.RAW_CONTACT_ID} = ? AND ${ContactsContract.Data.MIMETYPE} = ?"
+                val addressWhere =
+                    "${ContactsContract.Data.RAW_CONTACT_ID} = ? AND ${ContactsContract.Data.MIMETYPE} = ?"
                 val addressArgs = arrayOf(
                     rawContactId.toString(),
                     ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE
@@ -357,7 +367,7 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
                     null
                 )
 
-                if (addressCursor?.use { it.count } ?: 0 > 0) {
+                if ((addressCursor?.use { it.count } ?: 0) > 0) {
                     // Update existing address
                     val addressUpdateCount = contentResolver.update(
                         ContactsContract.Data.CONTENT_URI,
@@ -370,8 +380,14 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
                     // Add new address
                     addressValues.apply {
                         put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
-                        put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE)
-                        put(ContactsContract.CommonDataKinds.StructuredPostal.TYPE, ContactsContract.CommonDataKinds.StructuredPostal.TYPE_HOME)
+                        put(
+                            ContactsContract.Data.MIMETYPE,
+                            ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE
+                        )
+                        put(
+                            ContactsContract.CommonDataKinds.StructuredPostal.TYPE,
+                            ContactsContract.CommonDataKinds.StructuredPostal.TYPE_HOME
+                        )
                     }
                     val addressUri = contentResolver.insert(ContactsContract.Data.CONTENT_URI, addressValues)
                     updateSuccess = updateSuccess || (addressUri != null)
@@ -380,7 +396,8 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
 
             // Update or add company
             contact.company?.let { company ->
-                val companyWhere = "${ContactsContract.Data.RAW_CONTACT_ID} = ? AND ${ContactsContract.Data.MIMETYPE} = ?"
+                val companyWhere =
+                    "${ContactsContract.Data.RAW_CONTACT_ID} = ? AND ${ContactsContract.Data.MIMETYPE} = ?"
                 val companyArgs = arrayOf(
                     rawContactId.toString(),
                     ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE
@@ -399,7 +416,7 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
                     null
                 )
 
-                if (companyCursor?.use { it.count } ?: 0 > 0) {
+                if ((companyCursor?.use { it.count } ?: 0) > 0) {
                     // Update existing company
                     val companyUpdateCount = contentResolver.update(
                         ContactsContract.Data.CONTENT_URI,
@@ -412,8 +429,14 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
                     // Add new company
                     companyValues.apply {
                         put(ContactsContract.Data.RAW_CONTACT_ID, rawContactId)
-                        put(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE)
-                        put(ContactsContract.CommonDataKinds.Organization.TYPE, ContactsContract.CommonDataKinds.Organization.TYPE_WORK)
+                        put(
+                            ContactsContract.Data.MIMETYPE,
+                            ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE
+                        )
+                        put(
+                            ContactsContract.CommonDataKinds.Organization.TYPE,
+                            ContactsContract.CommonDataKinds.Organization.TYPE_WORK
+                        )
                     }
                     val companyUri = contentResolver.insert(ContactsContract.Data.CONTENT_URI, companyValues)
                     updateSuccess = updateSuccess || (companyUri != null)

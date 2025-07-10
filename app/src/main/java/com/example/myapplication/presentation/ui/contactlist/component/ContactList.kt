@@ -40,7 +40,7 @@ fun ContactList(contacts: List<Contact>, onClick: (Contact) -> Unit) {
                     maxLines = 2,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                     softWrap = true,
-                    fontSize= MaterialTheme.typography.bodyLarge.fontSize * 1.5f,
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * 1.5f,
                 )
             }
         else

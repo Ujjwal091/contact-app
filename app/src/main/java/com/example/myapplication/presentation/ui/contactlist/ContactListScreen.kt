@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.domain.entity.Contact
 import com.example.myapplication.presentation.ui.contactlist.component.ContactListContent
@@ -23,7 +24,11 @@ fun ContactListScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(Unit) {
+    // Generate a unique key each time the composable is recomposed
+    // This ensures contacts are reloaded when navigating back to this screen
+    val reloadKey = remember { System.currentTimeMillis() }
+
+    LaunchedEffect(reloadKey) {
         viewModel.loadContacts()
     }
 
@@ -56,7 +61,7 @@ fun ContactListScreenPreview() {
     )
 
     // Mock UI state directly without ViewModel
-    val state: ContactListState = ContactListState.Loading
+    val state: ContactListState = ContactListState.Success(sampleContacts)
 
     Column {
         ContactListTopBar(state = state, onAddContactClick = {})
