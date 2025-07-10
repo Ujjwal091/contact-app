@@ -2,6 +2,7 @@ package com.example.myapplication.di
 
 import android.content.ContentResolver
 import com.example.myapplication.data.datasource.ContactDataSource
+import com.example.myapplication.data.datasource.ContactDataSourceImpl
 import com.example.myapplication.data.repository.ContactRepositoryImpl
 import com.example.myapplication.domain.repository.ContactRepository
 import com.example.myapplication.domain.usecase.*
@@ -17,7 +18,7 @@ import org.koin.dsl.module
 val appModule = module {
     // Data sources
     single { androidContext().contentResolver as ContentResolver }
-    single { ContactDataSource(get()) }
+    single<ContactDataSource> { ContactDataSourceImpl(get()) }
 
     // Repositories
     single<ContactRepository> { ContactRepositoryImpl(get()) }

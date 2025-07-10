@@ -4,7 +4,23 @@ import com.example.myapplication.domain.entity.Contact
 
 
 fun ContactModel.toDomain(): Contact =
-    Contact(id = id, name = name, phone = phone)
+    Contact(
+        id = id, 
+        name = name, 
+        phone = phone,
+        email = email,
+        address = address,
+        company = company,
+        imageUrl = imageUrl
+    )
 
 fun Contact.toModel(): ContactModel =
-    ContactModel(id = id, name = name, phone = phone)
+    ContactModel(
+        id = id, 
+        name = name, 
+        phone = phone,
+        email = email,
+        address = address,
+        company = company,
+        imageUrl = imageUrl
+    )
