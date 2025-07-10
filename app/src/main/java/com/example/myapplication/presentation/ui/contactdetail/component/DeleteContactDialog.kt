@@ -42,7 +42,6 @@ fun DeleteContactDialog(
 @Preview(showBackground = true)
 @Composable
 fun DeleteContactDialogPreview() {
-
     DeleteContactDialog(
         onDismiss = {},
         onConfirm = {}
