@@ -2,22 +2,16 @@
 
 package com.example.myapplication.presentation.ui.contactlist
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.domain.entity.Contact
-import com.example.myapplication.presentation.ui.contactlist.component.ContactList
+import com.example.myapplication.presentation.ui.contactlist.component.ContactListContent
+import com.example.myapplication.presentation.ui.contactlist.component.ContactListTopBar
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,59 +28,38 @@ fun ContactListScreen(
     }
 
     Column {
-        TopAppBar(
-            title = {
-                Column {
-                    Text(
-                        text = "Phone",
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
-                    )
-                    if (state is ContactListState.Success) {
-                        val count = (state as ContactListState.Success).contacts.size
-                        Text(
-                            text = "$count contacts with phone numbers",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        )
-                    }
-                }
-            },
-            actions = {
-//                IconButton(onClick = { /* TODO: implement search */ }) {
-//                    Icon(Icons.Default.Search, contentDescription = "Search Contacts")
-//                }
-                IconButton(onClick = onAddContactClick) {
-                    Icon(Icons.Default.Add, contentDescription = "Add Contact")
-                }
-            }
+        ContactListTopBar(state = state, onAddContactClick = onAddContactClick)
+        ContactListContent(state = state, onContactClick = onContactClick)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+@Preview(showBackground = true)
+fun ContactListScreenPreview() {
+    val sampleContacts = listOf(
+        Contact(
+            id = "1",
+            name = "John Doe",
+            phone = "+1 123-456-7890"
+        ),
+        Contact(
+            id = "2",
+            name = "Jane Smith",
+            phone = "+1 987-654-3210"
+        ),
+        Contact(
+            id = "3",
+            name = "Alice Johnson",
+            phone = "+1 555-123-4567"
         )
+    )
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            when (state) {
-                is ContactListState.Loading -> Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
+    // Mock UI state directly without ViewModel
+    val state: ContactListState = ContactListState.Loading
 
-                is ContactListState.Error -> Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Text(
-                        (state as ContactListState.Error).message,
-                        modifier = Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-
-                is ContactListState.Success -> ContactList(
-                    contacts = (state as ContactListState.Success).contacts,
-                    onClick = onContactClick
-                )
-            }
-        }
+    Column {
+        ContactListTopBar(state = state, onAddContactClick = {})
+        ContactListContent(state = state, onContactClick = {})
     }
 }
