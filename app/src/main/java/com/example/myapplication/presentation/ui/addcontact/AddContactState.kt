@@ -25,4 +25,15 @@ sealed class AddContactState {
      * @param message The error message
      */
     data class Error(val message: String) : AddContactState()
+
+    /**
+     * Form state with field-specific errors
+     *
+     * @param nameError Error message for the name field, null if no error
+     * @param phoneError Error message for the phone field, null if no error
+     */
+    data class FormError(
+        val nameError: String? = null,
+        val phoneError: String? = null
+    ) : AddContactState()
 }

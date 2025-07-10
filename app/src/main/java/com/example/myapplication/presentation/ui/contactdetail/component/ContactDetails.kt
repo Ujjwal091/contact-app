@@ -29,6 +29,7 @@ fun ContactDetails(contact: Contact) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ContactAvatar(name = contact.name)
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Name
         Text(

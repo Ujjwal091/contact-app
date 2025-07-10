@@ -22,6 +22,18 @@ class AddContactViewModel(
     val state: StateFlow<AddContactState> = _state
 
     /**
+     * Validates if a phone number contains only valid characters
+     *
+     * @param phone The phone number to validate
+     * @return true if valid, false otherwise
+     */
+    private fun isValidPhoneNumber(phone: String): Boolean {
+        return phone.all { char ->
+            char.isDigit() || char in " ()-+"
+        }
+    }
+
+    /**
      * Adds a new contact
      *
      * @param name The name of the contact
@@ -30,13 +42,18 @@ class AddContactViewModel(
      */
     fun addContact(name: String, phone: String, onSuccess: () -> Unit = {}) {
         // Validate input
-        if (name.isBlank()) {
-            _state.value = AddContactState.Error("Name cannot be empty")
-            return
+        val nameError = if (name.isBlank()) "Name cannot be empty" else null
+        val phoneError = when {
+            phone.isBlank() -> "Phone number cannot be empty"
+            !isValidPhoneNumber(phone) -> "Phone number contains invalid characters"
+            else -> null
         }
 
-        if (phone.isBlank()) {
-            _state.value = AddContactState.Error("Phone number cannot be empty")
+        if (nameError != null || phoneError != null) {
+            _state.value = AddContactState.FormError(
+                nameError = nameError,
+                phoneError = phoneError
+            )
             return
         }
 
@@ -50,9 +67,9 @@ class AddContactViewModel(
                     phone = phone
                 )
 
-                val success = addContactUseCase(contact)
+                val isSuccess = addContactUseCase(contact)
 
-                if (success) {
+                if (isSuccess) {
                     _state.value = AddContactState.Success
                     onSuccess()
                 } else {

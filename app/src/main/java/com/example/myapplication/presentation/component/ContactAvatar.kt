@@ -1,7 +1,7 @@
 package com.example.myapplication.presentation.component
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -21,26 +21,22 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 fun ContactAvatar(name: String) {
-    Box(
-        modifier = Modifier
-            .size(120.dp)
-            .padding(bottom = 16.dp),
-        contentAlignment = Alignment.Center
+    Surface(
+        modifier = Modifier.size(120.dp),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.primaryContainer,
+        shadowElevation = 4.dp
     ) {
-        Surface(
-            modifier = Modifier.size(120.dp),
-            shape = MaterialTheme.shapes.large,
-            color = MaterialTheme.colorScheme.primaryContainer,
-            shadowElevation = 4.dp
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                Text(
-                    text = name.firstOrNull()?.toString() ?: "?",
-                    fontSize = 48.sp,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            Text(
+                text = name.trim().firstOrNull()?.toString()?.uppercase() ?: "?",
+                fontSize = 48.sp,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

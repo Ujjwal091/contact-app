@@ -67,7 +67,7 @@ fun AppNavigation(
         composable(Screen.AddContact.route) {
             AddContactScreen(
                 onContactAdded = { 
-                    // Navigate to contact list screen after adding a contact
+                    // Navigate to the contact list screen after adding a contact
                     navController.navigate(Screen.ContactList.route) {
                         // Clear the back stack up to the contact list
                         popUpTo(Screen.ContactList.route) {

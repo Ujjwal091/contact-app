@@ -1,6 +1,5 @@
 package com.example.myapplication.presentation.ui.addcontact
 
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -43,6 +42,10 @@ fun AddContactScreen(
                 onContactAdded()
             }
 
+            is AddContactState.FormError -> {
+                // Field errors are handled inline, no dialog needed
+            }
+
             else -> {}
         }
     }
@@ -82,14 +85,12 @@ fun AddContactScreenPreview(
     @PreviewParameter(AddContactStateProvider::class) state: AddContactState
 ) {
     // Create a simple composable that mimics the screen but uses the provided state directly
-    MaterialTheme {
-        AddContactScreenContent(
-            state = state,
-            errorMessage = if (state is AddContactState.Error) state.message else "",
-            showErrorDialog = state is AddContactState.Error,
-            onDismissErrorDialog = { },
-            onAddContact = { _, _ -> },
-            onBackClick = {}
-        )
-    }
+    AddContactScreenContent(
+        state = state,
+        errorMessage = if (state is AddContactState.Error) state.message else "",
+        showErrorDialog = state is AddContactState.Error,
+        onDismissErrorDialog = { },
+        onAddContact = { _, _ -> },
+        onBackClick = {}
+    )
 }

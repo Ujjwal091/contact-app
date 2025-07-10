@@ -15,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.presentation.component.ContactAvatar
 
@@ -35,7 +37,9 @@ fun AddContactForm(
     onNameChange: (String) -> Unit,
     onPhoneChange: (String) -> Unit,
     onSaveClick: () -> Unit,
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
+    nameError: String? = null,
+    phoneError: String? = null
 ) {
     Column(
         modifier = Modifier
@@ -54,7 +58,9 @@ fun AddContactForm(
             name = name,
             phone = phone,
             onNameChange = onNameChange,
-            onPhoneChange = onPhoneChange
+            onPhoneChange = onPhoneChange,
+            nameError = nameError,
+            phoneError = phoneError
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -73,30 +79,72 @@ fun AddContactForm(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun AddContactFormPreview() {
-    MaterialTheme {
-        AddContactForm(
-            name = "John Doe",
-            phone = "+1 123 456 7890",
-            onNameChange = {},
-            onPhoneChange = {},
-            onSaveClick = {}
-        )
-    }
-}
+/**
+ * Data class representing form parameters for preview
+ */
+data class AddContactFormParams(
+    val name: String,
+    val phone: String,
+    val isLoading: Boolean = false,
+    val nameError: String? = null,
+    val phoneError: String? = null
+)
 
-@Preview(showBackground = true, name = "Empty Form")
-@Composable
-fun AddContactFormEmptyPreview() {
-    MaterialTheme {
-        AddContactForm(
+/**
+ * Preview parameter provider for AddContactForm
+ */
+class AddContactFormParamsProvider : PreviewParameterProvider<AddContactFormParams> {
+    override val values = sequenceOf(
+        AddContactFormParams(
+            name = "John Doe",
+            phone = "+1 123 456 7890"
+        ),
+        AddContactFormParams(
+            name = "",
+            phone = ""
+        ),
+        AddContactFormParams(
+            name = "Jane Smith",
+            phone = "+91 9876543210",
+            isLoading = true
+        ),
+        AddContactFormParams(
             name = "",
             phone = "",
+            nameError = "Name cannot be empty",
+            phoneError = "Phone number cannot be empty"
+        ),
+        AddContactFormParams(
+            name = "",
+            phone = "+1 555 0123",
+            nameError = "Name cannot be empty"
+        ),
+        AddContactFormParams(
+            name = "Bob Wilson",
+            phone = "",
+            phoneError = "Phone number cannot be empty"
+        )
+    )
+}
+
+/**
+ * Preview of AddContactForm with different parameter combinations
+ */
+@Preview(showBackground = true, group = "Add Contact Form States")
+@Composable
+fun AddContactFormPreview(
+    @PreviewParameter(AddContactFormParamsProvider::class) params: AddContactFormParams
+) {
+    MaterialTheme {
+        AddContactForm(
+            name = params.name,
+            phone = params.phone,
             onNameChange = {},
             onPhoneChange = {},
-            onSaveClick = {}
+            onSaveClick = {},
+            isLoading = params.isLoading,
+            nameError = params.nameError,
+            phoneError = params.phoneError
         )
     }
 }

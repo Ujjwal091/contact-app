@@ -19,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.presentation.ui.addcontact.AddContactState
@@ -52,11 +54,40 @@ fun AddContactContent(
             }
 
             is AddContactState.Error -> {
-                // Error state is handled by the parent component with a dialog
+                // General error state is handled by the parent component with a dialog
+                // But we still show the form so user can retry
+                AddContactForm(
+                    name = name,
+                    phone = phone,
+                    onNameChange = { name = it },
+                    onPhoneChange = { phone = it },
+                    onSaveClick = { onAddContact(name, phone) }
+                )
             }
 
             is AddContactState.Success -> {
                 // Success state is handled by the parent component
+                // But we still show the form briefly before navigation
+                AddContactForm(
+                    name = name,
+                    phone = phone,
+                    onNameChange = { name = it },
+                    onPhoneChange = { phone = it },
+                    onSaveClick = { onAddContact(name, phone) }
+                )
+            }
+
+            is AddContactState.FormError -> {
+                // Show form with field-specific errors
+                AddContactForm(
+                    name = name,
+                    phone = phone,
+                    onNameChange = { name = it },
+                    onPhoneChange = { phone = it },
+                    onSaveClick = { onAddContact(name, phone) },
+                    nameError = state.nameError,
+                    phoneError = state.phoneError
+                )
             }
 
             is AddContactState.Initial -> {
@@ -72,24 +103,41 @@ fun AddContactContent(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun AddContactContentPreview() {
-    MaterialTheme {
-        AddContactContent(
-            state = AddContactState.Initial,
-            onAddContact = { _, _ -> },
-            onBackClick = {}
+/**
+ * Preview parameter provider for AddContactState
+ */
+class AddContactContentStateProvider : PreviewParameterProvider<AddContactState> {
+    override val values = sequenceOf(
+        AddContactState.Initial,
+        AddContactState.Loading,
+        AddContactState.Success,
+        AddContactState.Error("Failed to add contact"),
+        AddContactState.FormError(
+            nameError = "Name cannot be empty",
+            phoneError = "Phone number cannot be empty"
+        ),
+        AddContactState.FormError(
+            nameError = "Name cannot be empty",
+            phoneError = null
+        ),
+        AddContactState.FormError(
+            nameError = null,
+            phoneError = "Phone number cannot be empty"
         )
-    }
+    )
 }
 
-@Preview(showBackground = true, name = "Loading State")
+/**
+ * Preview of AddContactContent with different states
+ */
+@Preview(showBackground = true, group = "Add Contact Content States")
 @Composable
-fun AddContactContentLoadingPreview() {
+fun AddContactContentPreview(
+    @PreviewParameter(AddContactContentStateProvider::class) state: AddContactState
+) {
     MaterialTheme {
         AddContactContent(
-            state = AddContactState.Loading,
+            state = state,
             onAddContact = { _, _ -> },
             onBackClick = {}
         )
