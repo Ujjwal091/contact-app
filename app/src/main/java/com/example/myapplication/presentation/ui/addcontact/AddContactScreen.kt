@@ -1,18 +1,11 @@
 package com.example.myapplication.presentation.ui.addcontact
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import com.example.myapplication.presentation.ui.addcontact.component.AddContactScreenContent
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -22,7 +15,6 @@ import org.koin.androidx.compose.koinViewModel
  * @param onContactAdded Callback when a contact is successfully added
  * @param viewModel The view model for this screen
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddContactScreen(
     onBackClick: () -> Unit,
@@ -30,15 +22,14 @@ fun AddContactScreen(
     viewModel: AddContactViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    var name by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
-    var showErrorDialog by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
 
     // Reset state when entering the screen
     LaunchedEffect(Unit) {
         viewModel.resetState()
     }
+
+    var showErrorDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     // Handle state changes
     LaunchedEffect(state) {
@@ -56,107 +47,49 @@ fun AddContactScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Add Contact") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                }
-            )
-        }
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-                // Name field
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Name") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Name"
-                        )
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                    singleLine = true
-                )
-
-                // Phone field
-                OutlinedTextField(
-                    value = phone,
-                    onValueChange = { phone = it },
-                    label = { Text("Phone") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Phone,
-                            contentDescription = "Phone"
-                        )
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Phone,
-                        imeAction = ImeAction.Done
-                    ),
-                    singleLine = true
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Save button
-                Button(
-                    onClick = {
-                        viewModel.addContact(name, phone, onContactAdded)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                ) {
-                    Text("Save Contact")
-                }
+    AddContactScreenContent(
+        state = state,
+        errorMessage = errorMessage,
+        showErrorDialog = showErrorDialog,
+        onDismissErrorDialog = { showErrorDialog = false },
+        onAddContact = { name, phone ->
+            viewModel.addContact(name, phone) {
+                onContactAdded()
             }
+        },
+        onBackClick = onBackClick
+    )
+}
 
-            // Loading indicator
-            if (state is AddContactState.Loading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-        }
-    }
+/**
+ * Preview parameter provider for AddContactState
+ */
+class AddContactStateProvider : PreviewParameterProvider<AddContactState> {
+    override val values = sequenceOf(
+        AddContactState.Initial,
+        AddContactState.Loading,
+        AddContactState.Success,
+        AddContactState.Error("Failed to add contact")
+    )
+}
 
-    // Error dialog
-    if (showErrorDialog) {
-        AlertDialog(
-            onDismissRequest = { showErrorDialog = false },
-            title = { Text("Error") },
-            text = { Text(errorMessage) },
-            confirmButton = {
-                TextButton(onClick = { showErrorDialog = false }) {
-                    Text("OK")
-                }
-            }
+/**
+ * Preview of AddContactScreen with different states
+ */
+@Preview(showBackground = true, group = "Add Contact States")
+@Composable
+fun AddContactScreenPreview(
+    @PreviewParameter(AddContactStateProvider::class) state: AddContactState
+) {
+    // Create a simple composable that mimics the screen but uses the provided state directly
+    MaterialTheme {
+        AddContactScreenContent(
+            state = state,
+            errorMessage = if (state is AddContactState.Error) state.message else "",
+            showErrorDialog = state is AddContactState.Error,
+            onDismissErrorDialog = { },
+            onAddContact = { _, _ -> },
+            onBackClick = {}
         )
     }
 }

@@ -1,11 +1,9 @@
-package com.example.myapplication.presentation.ui.contactdetail.component
+package com.example.myapplication.presentation.ui.editcontact.component
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Card
@@ -15,19 +13,26 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.myapplication.domain.entity.Contact
-
 
 /**
- * Card displaying contact information
+ * Card for editing contact information
  *
- * @param contact The contact to display information for
+ * @param name The current name value
+ * @param phone The current phone value
+ * @param onNameChange Callback when the name is changed
+ * @param onPhoneChange Callback when the phone is changed
  */
 @Composable
-fun ContactInfoCard(contact: Contact) {
+fun EditContactInfoCard(
+    name: String,
+    phone: String,
+    onNameChange: (String) -> Unit,
+    onPhoneChange: (String) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -50,54 +55,33 @@ fun ContactInfoCard(contact: Contact) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            // Phone
-            ContactInfoItem(
-                icon = Icons.Default.Phone,
-                label = "Phone",
-                value = contact.phone
+            // Name
+            EditContactInfoItem(
+                icon = Icons.Default.Person,
+                label = "Name",
+                value = name,
+                onValueChange = onNameChange
             )
 
-            // Email
-            contact.email?.let { email ->
-                ContactInfoItem(
-                    icon = Icons.Default.Email,
-                    label = "Email",
-                    value = email
-                )
-            }
-
-            // Address
-            contact.address?.let { address ->
-                ContactInfoItem(
-                    icon = Icons.Default.LocationOn,
-                    label = "Address",
-                    value = address
-                )
-            }
-
-            // Company
-            contact.company?.let { company ->
-                ContactInfoItem(
-                    icon = Icons.Default.Person,
-                    label = "Company",
-                    value = company
-                )
-            }
+            // Phone
+            EditContactInfoItem(
+                icon = Icons.Default.Phone,
+                label = "Phone",
+                value = phone,
+                onValueChange = onPhoneChange,
+                keyboardType = KeyboardType.Phone,
+            )
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun ContactInfoCardPreview() {
-    ContactInfoCard(
-        contact = Contact(
-            id = "1",
-            name = "John Doe",
-            phone = "+91 8957695482",
-            email = "john.doe@example.com",
-            address = "123 Main St, Anytown, USA",
-            company = "Example Corp"
-        )
+fun EditContactInfoCardPreview() {
+    EditContactInfoCard(
+        name = "John Doe",
+        phone = "+1 123 456 7890",
+        onNameChange = {},
+        onPhoneChange = {}
     )
 }

@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.domain.entity.Contact
+import com.example.myapplication.presentation.component.ContactAvatar
 
 /**
  * Composable that displays the details of a contact

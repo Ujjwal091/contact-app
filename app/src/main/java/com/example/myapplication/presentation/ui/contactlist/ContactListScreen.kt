@@ -4,11 +4,7 @@ package com.example.myapplication.presentation.ui.contactlist
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.domain.entity.Contact
 import com.example.myapplication.presentation.ui.contactlist.component.ContactListContent

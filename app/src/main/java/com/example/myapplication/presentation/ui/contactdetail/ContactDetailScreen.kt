@@ -34,7 +34,10 @@ fun ContactDetailScreen(
     val state by viewModel.state.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(contactId) {
+    // Load contact when entering the screen or when returning to it
+    // Using a key that changes every time the screen is composed
+    val reloadKey = remember { System.currentTimeMillis() }
+    LaunchedEffect(reloadKey) {
         viewModel.loadContact(contactId)
     }
 

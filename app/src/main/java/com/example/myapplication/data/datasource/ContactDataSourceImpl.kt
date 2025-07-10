@@ -16,7 +16,7 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
         // First, get basic contact info (ID, name, phone)
         val cursor = contentResolver.query(
             ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-            null, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
+            null, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE NOCASE ASC"
         )
 
         cursor?.use {

@@ -68,13 +68,20 @@ class EditContactViewModel(
             try {
                 _state.value = EditContactState.Loading
 
-                val contact = Contact(
-                    id = contactId,
+                // Get the current contact to preserve other fields
+                val currentContact = getContactByIdUseCase(contactId)
+                if (currentContact == null) {
+                    _state.value = EditContactState.Error("Contact not found")
+                    return@launch
+                }
+
+                // Create updated contact with same ID but new name and phone
+                val updatedContact = currentContact.copy(
                     name = name,
                     phone = phone
                 )
 
-                val success = updateContactUseCase(contact)
+                val success = updateContactUseCase(updatedContact)
 
                 if (success) {
                     _state.value = EditContactState.Success

@@ -28,7 +28,7 @@ class AddContactViewModel(
      * @param phone The phone number of the contact
      * @param onSuccess Callback when addition is successful
      */
-    fun addContact(name: String, phone: String, onSuccess: () -> Unit) {
+    fun addContact(name: String, phone: String, onSuccess: () -> Unit = {}) {
         // Validate input
         if (name.isBlank()) {
             _state.value = AddContactState.Error("Name cannot be empty")
