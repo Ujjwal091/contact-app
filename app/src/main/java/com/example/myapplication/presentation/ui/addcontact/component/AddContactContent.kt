@@ -29,17 +29,19 @@ import com.example.myapplication.presentation.ui.addcontact.AddContactState
  * Content for the add contact screen
  *
  * @param state The state of the add contact screen
- * @param onAddContact Callback when a contact is added with name and phone
+ * @param onAddContact Callback when a contact is added with name, phone, email, and company
  * @param onBackClick Callback when the back button is clicked
  */
 @Composable
 fun AddContactContent(
     state: AddContactState,
-    onAddContact: (name: String, phone: String) -> Unit,
+    onAddContact: (name: String, phone: String, email: String, company: String) -> Unit,
     onBackClick: () -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var company by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -59,9 +61,13 @@ fun AddContactContent(
                 AddContactForm(
                     name = name,
                     phone = phone,
+                    email = email,
+                    company = company,
                     onNameChange = { name = it },
                     onPhoneChange = { phone = it },
-                    onSaveClick = { onAddContact(name, phone) }
+                    onEmailChange = { email = it },
+                    onCompanyChange = { company = it },
+                    onSaveClick = { onAddContact(name, phone, email, company) }
                 )
             }
 
@@ -71,9 +77,13 @@ fun AddContactContent(
                 AddContactForm(
                     name = name,
                     phone = phone,
+                    email = email,
+                    company = company,
                     onNameChange = { name = it },
                     onPhoneChange = { phone = it },
-                    onSaveClick = { onAddContact(name, phone) }
+                    onEmailChange = { email = it },
+                    onCompanyChange = { company = it },
+                    onSaveClick = { onAddContact(name, phone, email, company) }
                 )
             }
 
@@ -82,11 +92,17 @@ fun AddContactContent(
                 AddContactForm(
                     name = name,
                     phone = phone,
+                    email = email,
+                    company = company,
                     onNameChange = { name = it },
                     onPhoneChange = { phone = it },
-                    onSaveClick = { onAddContact(name, phone) },
+                    onEmailChange = { email = it },
+                    onCompanyChange = { company = it },
+                    onSaveClick = { onAddContact(name, phone, email, company) },
                     nameError = state.nameError,
-                    phoneError = state.phoneError
+                    phoneError = state.phoneError,
+                    emailError = state.emailError,
+                    companyError = state.companyError
                 )
             }
 
@@ -94,9 +110,13 @@ fun AddContactContent(
                 AddContactForm(
                     name = name,
                     phone = phone,
+                    email = email,
+                    company = company,
                     onNameChange = { name = it },
                     onPhoneChange = { phone = it },
-                    onSaveClick = { onAddContact(name, phone) }
+                    onEmailChange = { email = it },
+                    onCompanyChange = { company = it },
+                    onSaveClick = { onAddContact(name, phone, email, company) }
                 )
             }
         }
@@ -138,7 +158,7 @@ fun AddContactContentPreview(
     MaterialTheme {
         AddContactContent(
             state = state,
-            onAddContact = { _, _ -> },
+            onAddContact = { _, _, _, _ -> },
             onBackClick = {}
         )
     }

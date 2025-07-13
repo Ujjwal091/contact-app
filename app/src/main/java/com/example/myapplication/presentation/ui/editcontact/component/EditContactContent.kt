@@ -22,13 +22,13 @@ import com.example.myapplication.presentation.ui.editcontact.EditContactState
  * Content for the edit contact screen
  *
  * @param state The state of the edit contact screen
- * @param onUpdateContact Callback when the contact is updated with new name and phone
+ * @param onUpdateContact Callback when the contact is updated with all fields
  * @param onBackClick Callback when the back button is clicked
  */
 @Composable
 fun EditContactContent(
     state: EditContactState,
-    onUpdateContact: (name: String, phone: String) -> Unit,
+    onUpdateContact: (name: String, phone: String, email: String, company: String) -> Unit,
     onBackClick: () -> Unit
 ) {
     Box(
@@ -47,13 +47,19 @@ fun EditContactContent(
                 val contact = state.contact
                 var name by remember(contact.id) { mutableStateOf(contact.name) }
                 var phone by remember(contact.id) { mutableStateOf(contact.phone) }
+                var email by remember(contact.id) { mutableStateOf(contact.email ?: "") }
+                var company by remember(contact.id) { mutableStateOf(contact.company ?: "") }
 
                 EditContactForm(
                     name = name,
                     phone = phone,
+                    email = email,
+                    company = company,
                     onNameChange = { name = it },
                     onPhoneChange = { phone = it },
-                    onUpdateClick = { onUpdateContact(name, phone) }
+                    onEmailChange = { email = it },
+                    onCompanyChange = { company = it },
+                    onUpdateClick = { onUpdateContact(name, phone, email, company) }
                 )
             }
 
@@ -116,10 +122,11 @@ fun EditContactContentPreview() {
                 phone = "+1 123 456 7890",
                 email = "john.doe@example.com",
                 address = "123 Main St, Anytown, USA",
-                company = "Example Corp"
+                company = "Example Corp",
+
             )
         ),
-        onUpdateContact = { _, _ -> },
+        onUpdateContact = { _, _, _, _ -> },
         onBackClick = {}
     )
 }

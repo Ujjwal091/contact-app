@@ -7,7 +7,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.myapplication.domain.entity.Contact
 import com.example.myapplication.presentation.ui.editcontact.component.EditContactContent
 import com.example.myapplication.presentation.ui.editcontact.component.EditContactForm
 import com.example.myapplication.presentation.ui.editcontact.component.EditContactTopBar
@@ -68,8 +67,8 @@ fun EditContactScreen(
         ) {
             EditContactContent(
                 state = state,
-                onUpdateContact = { name, phone ->
-                    viewModel.updateContact(contactId, name, phone) {
+                onUpdateContact = { name, phone, email, company ->
+                    viewModel.updateContact(contactId, name, phone, email, company) {
                         // This callback is only called on success
                         onContactUpdated()
                     }
@@ -112,8 +111,12 @@ fun EditContactScreenPreview() {
             EditContactForm(
                 name = "John Doe",
                 phone = "+1 123 456 7890",
+                email = "john.doe@example.com",
+                company = "Example Corp",
                 onNameChange = {},
                 onPhoneChange = {},
+                onEmailChange = {},
+                onCompanyChange = {},
                 onUpdateClick = {}
             )
         }

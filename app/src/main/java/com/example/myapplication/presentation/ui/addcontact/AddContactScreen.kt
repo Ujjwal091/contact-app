@@ -55,8 +55,8 @@ fun AddContactScreen(
         errorMessage = errorMessage,
         showErrorDialog = showErrorDialog,
         onDismissErrorDialog = { showErrorDialog = false },
-        onAddContact = { name, phone ->
-            viewModel.addContact(name, phone) {
+        onAddContact = { name, phone, email, company ->
+            viewModel.addContact(name, phone, email, company) {
                 onContactAdded()
             }
         },
@@ -90,7 +90,7 @@ fun AddContactScreenPreview(
         errorMessage = if (state is AddContactState.Error) state.message else "",
         showErrorDialog = state is AddContactState.Error,
         onDismissErrorDialog = { },
-        onAddContact = { _, _ -> },
+        onAddContact = { _, _, _, _ -> },
         onBackClick = {}
     )
 }

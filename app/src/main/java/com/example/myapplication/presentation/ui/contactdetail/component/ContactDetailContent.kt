@@ -92,7 +92,7 @@ fun ContactDetailContentPreview() {
                     phone = "+1 123 456 7890",
                     email = "john.doe@example.com",
                     address = "123 Main St, Anytown, USA",
-                    company = "Example Corp"
+                    company = "Example Corp",
                 )
             )
         )

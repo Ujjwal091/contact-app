@@ -34,13 +34,31 @@ class AddContactViewModel(
     }
 
     /**
+     * Validates if an email address is valid
+     *
+     * @param email The email address to validate
+     * @return true if valid, false otherwise
+     */
+    private fun isValidEmail(email: String): Boolean {
+        return email.contains("@") && email.contains(".")
+    }
+
+    /**
      * Adds a new contact
      *
      * @param name The name of the contact
      * @param phone The phone number of the contact
+     * @param email The email of the contact
+     * @param company The company of the contact
      * @param onSuccess Callback when addition is successful
      */
-    fun addContact(name: String, phone: String, onSuccess: () -> Unit = {}) {
+    fun addContact(
+        name: String,
+        phone: String,
+        email: String = "",
+        company: String = "",
+        onSuccess: () -> Unit = {}
+    ) {
         // Validate input
         val nameError = if (name.isBlank()) "Name cannot be empty" else null
         val phoneError = when {
@@ -48,11 +66,17 @@ class AddContactViewModel(
             !isValidPhoneNumber(phone) -> "Phone number contains invalid characters"
             else -> null
         }
+        val emailError = if (email.isNotBlank() && !isValidEmail(email)) {
+            "Please enter a valid email address"
+        } else null
+        val companyError: String? = null // Company is optional, no validation needed
 
-        if (nameError != null || phoneError != null) {
+        if (nameError != null || phoneError != null || emailError != null || companyError != null) {
             _state.value = AddContactState.FormError(
                 nameError = nameError,
-                phoneError = phoneError
+                phoneError = phoneError,
+                emailError = emailError,
+                companyError = companyError
             )
             return
         }
@@ -64,7 +88,9 @@ class AddContactViewModel(
                 val contact = Contact(
                     id = UUID.randomUUID().toString(), // Generate a unique ID
                     name = name,
-                    phone = phone
+                    phone = phone,
+                    email = email.ifBlank { null },
+                    company = company.ifBlank { null },
                 )
 
                 val isSuccess = addContactUseCase(contact)

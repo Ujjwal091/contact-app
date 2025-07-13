@@ -25,8 +25,12 @@ import com.example.myapplication.presentation.component.ContactAvatar
  *
  * @param name The current name value
  * @param phone The current phone value
+ * @param email The current email value
+ * @param company The current company value
  * @param onNameChange Callback when the name is changed
  * @param onPhoneChange Callback when the phone is changed
+ * @param onEmailChange Callback when the email is changed
+ * @param onCompanyChange Callback when the company is changed
  * @param onSaveClick Callback when the save button is clicked
  * @param isLoading Whether the form is in a loading state
  */
@@ -34,12 +38,18 @@ import com.example.myapplication.presentation.component.ContactAvatar
 fun AddContactForm(
     name: String,
     phone: String,
+    email: String,
+    company: String,
     onNameChange: (String) -> Unit,
     onPhoneChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
+    onCompanyChange: (String) -> Unit,
     onSaveClick: () -> Unit,
     isLoading: Boolean = false,
     nameError: String? = null,
-    phoneError: String? = null
+    phoneError: String? = null,
+    emailError: String? = null,
+    companyError: String? = null
 ) {
     Column(
         modifier = Modifier
@@ -57,10 +67,16 @@ fun AddContactForm(
         AddContactInfoCard(
             name = name,
             phone = phone,
+            email = email,
+            company = company,
             onNameChange = onNameChange,
             onPhoneChange = onPhoneChange,
+            onEmailChange = onEmailChange,
+            onCompanyChange = onCompanyChange,
             nameError = nameError,
-            phoneError = phoneError
+            phoneError = phoneError,
+            emailError = emailError,
+            companyError = companyError
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -85,9 +101,13 @@ fun AddContactForm(
 data class AddContactFormParams(
     val name: String,
     val phone: String,
+    val email: String,
+    val company: String,
     val isLoading: Boolean = false,
     val nameError: String? = null,
-    val phoneError: String? = null
+    val phoneError: String? = null,
+    val emailError: String? = null,
+    val companyError: String? = null
 )
 
 /**
@@ -97,31 +117,43 @@ class AddContactFormParamsProvider : PreviewParameterProvider<AddContactFormPara
     override val values = sequenceOf(
         AddContactFormParams(
             name = "John Doe",
-            phone = "+1 123 456 7890"
+            phone = "+1 123 456 7890",
+            email = "john.doe@example.com",
+            company = "Example Corp"
         ),
         AddContactFormParams(
             name = "",
-            phone = ""
+            phone = "",
+            email = "",
+            company = ""
         ),
         AddContactFormParams(
             name = "Jane Smith",
             phone = "+91 9876543210",
+            email = "jane.smith@company.com",
+            company = "Tech Solutions",
             isLoading = true
         ),
         AddContactFormParams(
             name = "",
             phone = "",
+            email = "",
+            company = "",
             nameError = "Name cannot be empty",
             phoneError = "Phone number cannot be empty"
         ),
         AddContactFormParams(
             name = "",
             phone = "+1 555 0123",
+            email = "",
+            company = "",
             nameError = "Name cannot be empty"
         ),
         AddContactFormParams(
             name = "Bob Wilson",
             phone = "",
+            email = "",
+            company = "",
             phoneError = "Phone number cannot be empty"
         )
     )
@@ -139,12 +171,18 @@ fun AddContactFormPreview(
         AddContactForm(
             name = params.name,
             phone = params.phone,
+            email = params.email,
+            company = params.company,
             onNameChange = {},
             onPhoneChange = {},
+            onEmailChange = {},
+            onCompanyChange = {},
             onSaveClick = {},
             isLoading = params.isLoading,
             nameError = params.nameError,
-            phoneError = params.phoneError
+            phoneError = params.phoneError,
+            emailError = params.emailError,
+            companyError = params.companyError
         )
     }
 }

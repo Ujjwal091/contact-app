@@ -15,7 +15,7 @@ import com.example.myapplication.presentation.ui.addcontact.AddContactState
  * @param errorMessage The error message to display in the error dialog (if state is Error)
  * @param showErrorDialog Whether to show the error dialog
  * @param onDismissErrorDialog Callback when the error dialog is dismissed
- * @param onAddContact Callback when a contact is added with name and phone
+ * @param onAddContact Callback when a contact is added with name, phone, email, and company
  * @param onBackClick Callback when the back button is clicked
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,7 +25,7 @@ fun AddContactScreenContent(
     errorMessage: String = "",
     showErrorDialog: Boolean = state is AddContactState.Error,
     onDismissErrorDialog: () -> Unit = {},
-    onAddContact: (name: String, phone: String) -> Unit,
+    onAddContact: (name: String, phone: String, email: String, company: String) -> Unit,
     onBackClick: () -> Unit
 ) {
     Scaffold(

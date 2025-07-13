@@ -18,16 +18,24 @@ import com.example.myapplication.presentation.component.ContactAvatar
  *
  * @param name The current name value
  * @param phone The current phone value
+ * @param email The current email value
+ * @param company The current company value
  * @param onNameChange Callback when the name is changed
  * @param onPhoneChange Callback when the phone is changed
+ * @param onEmailChange Callback when the email is changed
+ * @param onCompanyChange Callback when the company is changed
  * @param onUpdateClick Callback when the update button is clicked
  */
 @Composable
 fun EditContactForm(
     name: String,
     phone: String,
+    email: String,
+    company: String,
     onNameChange: (String) -> Unit,
     onPhoneChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
+    onCompanyChange: (String) -> Unit,
     onUpdateClick: () -> Unit
 ) {
     Column(
@@ -45,8 +53,12 @@ fun EditContactForm(
         EditContactInfoCard(
             name = name,
             phone = phone,
+            email = email,
+            company = company,
             onNameChange = onNameChange,
-            onPhoneChange = onPhoneChange
+            onPhoneChange = onPhoneChange,
+            onEmailChange = onEmailChange,
+            onCompanyChange = onCompanyChange,
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -71,8 +83,12 @@ fun EditContactFormPreview() {
         EditContactForm(
             name = "John Doe",
             phone = "+1 123 456 7890",
+            email = "john.doe@example.com",
+            company = "Example Corp",
             onNameChange = {},
             onPhoneChange = {},
+            onEmailChange = {},
+            onCompanyChange = {},
             onUpdateClick = {}
         )
     }

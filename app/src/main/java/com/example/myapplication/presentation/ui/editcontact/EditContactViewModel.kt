@@ -24,6 +24,28 @@ class EditContactViewModel(
     val state: StateFlow<EditContactState> = _state
 
     /**
+     * Validates if a phone number contains only valid characters
+     *
+     * @param phone The phone number to validate
+     * @return true if valid, false otherwise
+     */
+    private fun isValidPhoneNumber(phone: String): Boolean {
+        return phone.all { char ->
+            char.isDigit() || char in " ()-+"
+        }
+    }
+
+    /**
+     * Validates if an email address is valid
+     *
+     * @param email The email address to validate
+     * @return true if valid, false otherwise
+     */
+    private fun isValidEmail(email: String): Boolean {
+        return email.contains("@") && email.contains(".")
+    }
+
+    /**
      * Loads a contact by ID
      *
      * @param contactId The ID of the contact to load
@@ -50,9 +72,18 @@ class EditContactViewModel(
      * @param contactId The ID of the contact to update
      * @param name The updated name
      * @param phone The updated phone number
+     * @param email The updated email
+     * @param company The updated company
      * @param onSuccess Callback when update is successful
      */
-    fun updateContact(contactId: String, name: String, phone: String, onSuccess: () -> Unit) {
+    fun updateContact(
+        contactId: String, 
+        name: String, 
+        phone: String, 
+        email: String = "", 
+        company: String = "",
+        onSuccess: () -> Unit
+    ) {
         // Validate input
         if (name.isBlank()) {
             _state.value = EditContactState.Error("Name cannot be empty")
@@ -61,6 +92,16 @@ class EditContactViewModel(
 
         if (phone.isBlank()) {
             _state.value = EditContactState.Error("Phone number cannot be empty")
+            return
+        }
+
+        if (!isValidPhoneNumber(phone)) {
+            _state.value = EditContactState.Error("Phone number contains invalid characters")
+            return
+        }
+
+        if (email.isNotBlank() && !isValidEmail(email)) {
+            _state.value = EditContactState.Error("Please enter a valid email address")
             return
         }
 
@@ -75,10 +116,12 @@ class EditContactViewModel(
                     return@launch
                 }
 
-                // Create updated contact with same ID but new name and phone
+                // Create updated contact with same ID but new fields
                 val updatedContact = currentContact.copy(
                     name = name,
-                    phone = phone
+                    phone = phone,
+                    email = email.ifBlank { null },
+                    company = company.ifBlank { null },
                 )
 
                 val success = updateContactUseCase(updatedContact)
