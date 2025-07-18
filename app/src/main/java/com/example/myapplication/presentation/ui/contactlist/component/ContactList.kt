@@ -4,7 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -50,7 +50,7 @@ fun ContactList(contacts: List<Contact>, onClick: (Contact) -> Unit) {
                     .padding(horizontal = 16.dp)
                     .windowInsetsPadding(WindowInsets.navigationBars)
             ) {
-                itemsIndexed(contacts) { index, contact ->
+                items(contacts) { contact ->
                     Surface(
                         shape = MaterialTheme.shapes.large,
                         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -65,11 +65,6 @@ fun ContactList(contacts: List<Contact>, onClick: (Contact) -> Unit) {
                             modifier = Modifier
                                 .padding(horizontal = 16.dp, vertical = 12.dp)
                         ) {
-                            Text(
-                                text = "${index + 1}.",
-                                modifier = Modifier.padding(end = 10.dp),
-                                textAlign = TextAlign.Center
-                            )
                             Box(
                                 modifier = Modifier
                                     .size(40.dp)
