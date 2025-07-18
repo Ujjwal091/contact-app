@@ -1,5 +1,8 @@
 package com.example.myapplication.presentation.ui.contactdetail.component
 
+import android.content.Intent
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Phone
@@ -10,9 +13,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 
 /**
  * Item displaying a piece of contact information
@@ -20,18 +27,42 @@ import androidx.compose.ui.unit.sp
  * @param icon The icon to display
  * @param label The label for the information
  * @param value The value of the information
+ * @param isPhone Whether this item represents a phone number
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ContactInfoItem(
     icon: ImageVector,
     label: String,
-    value: String
+    value: String,
+    isPhone: Boolean = false
 ) {
+    val clipboardManager = LocalClipboardManager.current
+    val context = LocalContext.current
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
+            .then(
+                if (isPhone) {
+                    Modifier.combinedClickable(
+                        onClick = {
+                            // Open dialer with phone number
+                            val intent = Intent(Intent.ACTION_DIAL).apply {
+                                data = "tel:$value".toUri()
+                            }
+                            context.startActivity(intent)
+                        },
+                        onLongClick = {
+                            // Copy phone number to clipboard
+                            clipboardManager.setText(AnnotatedString(value))
+                        }
+                    )
+                } else {
+                    Modifier
+                }
+            )
     ) {
         Icon(
             imageVector = icon,
