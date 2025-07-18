@@ -54,7 +54,8 @@ fun ContactInfoCard(contact: Contact) {
             ContactInfoItem(
                 icon = Icons.Default.Phone,
                 label = "Phone",
-                value = contact.phone
+                value = contact.phone,
+                isPhone = true
             )
 
             // Email
