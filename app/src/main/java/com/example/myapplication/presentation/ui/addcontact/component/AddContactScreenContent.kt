@@ -7,30 +7,39 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.example.myapplication.presentation.ui.addcontact.AddContactState
+import com.example.myapplication.presentation.ui.addcontact.component.UnsavedChangesDialog
 
 /**
- * Content wrapper for the add contact screen that includes the scaffold, content, and error dialog
+ * Content wrapper for the add/edit contact screen that includes the scaffold, content, and dialogs
  *
- * @param state The current state of the add contact screen
+ * @param state The current state of the add/edit contact screen
+ * @param isEditMode Whether the screen is in edit mode
  * @param errorMessage The error message to display in the error dialog (if state is Error)
  * @param showErrorDialog Whether to show the error dialog
+ * @param showUnsavedChangesDialog Whether to show the unsaved changes dialog
  * @param onDismissErrorDialog Callback when the error dialog is dismissed
- * @param onAddContact Callback when a contact is added with name, phone, email, and company
+ * @param onSaveContact Callback when a contact is saved with name, phone, email, and company
  * @param onBackClick Callback when the back button is clicked
+ * @param onDiscardChanges Callback when the user confirms discarding changes
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddContactScreenContent(
     state: AddContactState,
+    isEditMode: Boolean = false,
     errorMessage: String = "",
     showErrorDialog: Boolean = state is AddContactState.Error,
+    showUnsavedChangesDialog: Boolean = false,
     onDismissErrorDialog: () -> Unit = {},
-    onAddContact: (name: String, phone: String, email: String, company: String) -> Unit,
-    onBackClick: () -> Unit
+    onSaveContact: (name: String, phone: String, email: String, company: String) -> Unit,
+    onBackClick: () -> Unit,
+    onDiscardChanges: () -> Unit = {},
+    onHasUnsavedChangesChange: (Boolean) -> Unit = {}
 ) {
     Scaffold(
         topBar = {
             AddContactTopBar(
+                isEditMode = isEditMode,
                 onBackClick = onBackClick
             )
         }
@@ -42,8 +51,10 @@ fun AddContactScreenContent(
         ) {
             AddContactContent(
                 state = state,
-                onAddContact = onAddContact,
-                onBackClick = onBackClick
+                isEditMode = isEditMode,
+                onSaveContact = onSaveContact,
+                onBackClick = onBackClick,
+                onHasUnsavedChanges = onHasUnsavedChangesChange
             )
         }
     }
@@ -61,4 +72,39 @@ fun AddContactScreenContent(
             }
         )
     }
+    
+    // Unsaved changes dialog
+    if (showUnsavedChangesDialog) {
+        UnsavedChangesDialog(
+            onDismiss = { onHasUnsavedChangesChange(true) }, // Continue editing
+            onConfirm = onDiscardChanges // Discard changes and go back
+        )
+    }
+}
+
+/**
+ * For backward compatibility with existing code
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddContactScreenContent(
+    state: AddContactState,
+    errorMessage: String = "",
+    showErrorDialog: Boolean = state is AddContactState.Error,
+    onDismissErrorDialog: () -> Unit = {},
+    onAddContact: (name: String, phone: String, email: String, company: String) -> Unit,
+    onBackClick: () -> Unit
+) {
+    AddContactScreenContent(
+        state = state,
+        isEditMode = false,
+        errorMessage = errorMessage,
+        showErrorDialog = showErrorDialog,
+        showUnsavedChangesDialog = false,
+        onDismissErrorDialog = onDismissErrorDialog,
+        onSaveContact = onAddContact,
+        onBackClick = onBackClick,
+        onDiscardChanges = onBackClick,
+        onHasUnsavedChangesChange = { _ -> }
+    )
 }

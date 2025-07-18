@@ -9,7 +9,6 @@ import com.example.myapplication.domain.usecase.*
 import com.example.myapplication.presentation.ui.addcontact.AddContactViewModel
 import com.example.myapplication.presentation.ui.contactdetail.ContactDetailViewModel
 import com.example.myapplication.presentation.ui.contactlist.ContactListViewModel
-import com.example.myapplication.presentation.ui.editcontact.EditContactViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -33,6 +32,9 @@ val appModule = module {
     // ViewModels
     viewModel { ContactListViewModel(get()) }
     viewModel { ContactDetailViewModel(get(), get()) }
-    viewModel { AddContactViewModel(get()) }
-    viewModel { EditContactViewModel(get(), get()) }
+    viewModel { AddContactViewModel(
+        addContactUseCase = get(),
+        getContactByIdUseCase = get(),
+        updateContactUseCase = get()
+    ) }
 }

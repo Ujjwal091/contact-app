@@ -4,22 +4,32 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.domain.entity.Contact
 import com.example.myapplication.domain.usecase.AddContactUseCase
+import com.example.myapplication.domain.usecase.GetContactByIdUseCase
+import com.example.myapplication.domain.usecase.UpdateContactUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.*
 
 /**
- * ViewModel for the add contact screen
+ * ViewModel for the add/edit contact screen
  *
  * @param addContactUseCase Use case to add a contact
+ * @param getContactByIdUseCase Use case to get a contact by ID
+ * @param updateContactUseCase Use case to update a contact
  */
 class AddContactViewModel(
-    private val addContactUseCase: AddContactUseCase
+    private val addContactUseCase: AddContactUseCase,
+    private val getContactByIdUseCase: GetContactByIdUseCase,
+    private val updateContactUseCase: UpdateContactUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<AddContactState>(AddContactState.Initial)
     val state: StateFlow<AddContactState> = _state
+    
+    // Track whether we're in edit mode
+    private var isEditMode = false
+    private var contactIdToEdit: String? = null
 
     /**
      * Validates if a phone number contains only valid characters
@@ -42,17 +52,41 @@ class AddContactViewModel(
     private fun isValidEmail(email: String): Boolean {
         return email.contains("@") && email.contains(".")
     }
+    
+    /**
+     * Loads a contact by ID for editing
+     *
+     * @param contactId The ID of the contact to load
+     */
+    fun loadContact(contactId: String) {
+        isEditMode = true
+        contactIdToEdit = contactId
+        
+        viewModelScope.launch {
+            try {
+                _state.value = AddContactState.Loading
+                val contact = getContactByIdUseCase(contactId)
+                if (contact != null) {
+                    _state.value = AddContactState.Editing(contact)
+                } else {
+                    _state.value = AddContactState.NotFound
+                }
+            } catch (e: Exception) {
+                _state.value = AddContactState.Error("Failed to load contact: ${e.localizedMessage}")
+            }
+        }
+    }
 
     /**
-     * Adds a new contact
+     * Adds a new contact or updates an existing one
      *
      * @param name The name of the contact
      * @param phone The phone number of the contact
      * @param email The email of the contact
      * @param company The company of the contact
-     * @param onSuccess Callback when addition is successful
+     * @param onSuccess Callback when operation is successful
      */
-    fun addContact(
+    fun saveContact(
         name: String,
         phone: String,
         email: String = "",
@@ -85,32 +119,73 @@ class AddContactViewModel(
             try {
                 _state.value = AddContactState.Loading
 
-                val contact = Contact(
-                    id = UUID.randomUUID().toString(), // Generate a unique ID
-                    name = name,
-                    phone = phone,
-                    email = email.ifBlank { null },
-                    company = company.ifBlank { null },
-                )
-
-                val isSuccess = addContactUseCase(contact)
+                val isSuccess = if (isEditMode && contactIdToEdit != null) {
+                    // Update existing contact
+                    val currentContact = getContactByIdUseCase(contactIdToEdit!!)
+                    if (currentContact == null) {
+                        _state.value = AddContactState.Error("Contact not found")
+                        return@launch
+                    }
+                    
+                    // Create updated contact with same ID but new fields
+                    val updatedContact = currentContact.copy(
+                        name = name,
+                        phone = phone,
+                        email = email.ifBlank { null },
+                        company = company.ifBlank { null },
+                    )
+                    
+                    updateContactUseCase(updatedContact)
+                } else {
+                    // Add new contact
+                    val contact = Contact(
+                        id = UUID.randomUUID().toString(), // Generate a unique ID
+                        name = name,
+                        phone = phone,
+                        email = email.ifBlank { null },
+                        company = company.ifBlank { null },
+                    )
+                    
+                    addContactUseCase(contact)
+                }
 
                 if (isSuccess) {
                     _state.value = AddContactState.Success
                     onSuccess()
                 } else {
-                    _state.value = AddContactState.Error("Failed to add contact")
+                    val action = if (isEditMode) "update" else "add"
+                    _state.value = AddContactState.Error("Failed to $action contact")
                 }
             } catch (e: Exception) {
-                _state.value = AddContactState.Error("Error adding contact: ${e.localizedMessage}")
+                val action = if (isEditMode) "updating" else "adding"
+                _state.value = AddContactState.Error("Error $action contact: ${e.localizedMessage}")
             }
         }
     }
+    
+    /**
+     * For backward compatibility with existing code
+     */
+    fun addContact(
+        name: String,
+        phone: String,
+        email: String = "",
+        company: String = "",
+        onSuccess: () -> Unit = {}
+    ) {
+        saveContact(name, phone, email, company, onSuccess)
+    }
 
     /**
-     * Resets the state to initial
+     * Resets the state to initial or loads contact if in edit mode
      */
     fun resetState() {
-        _state.value = AddContactState.Initial
+        if (isEditMode && contactIdToEdit != null) {
+            loadContact(contactIdToEdit!!)
+        } else {
+            _state.value = AddContactState.Initial
+            isEditMode = false
+            contactIdToEdit = null
+        }
     }
 }

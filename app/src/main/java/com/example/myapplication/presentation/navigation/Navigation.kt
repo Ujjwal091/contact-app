@@ -9,7 +9,6 @@ import androidx.navigation.navArgument
 import com.example.myapplication.presentation.ui.addcontact.AddContactScreen
 import com.example.myapplication.presentation.ui.contactdetail.ContactDetailScreen
 import com.example.myapplication.presentation.ui.contactlist.ContactListScreen
-import com.example.myapplication.presentation.ui.editcontact.EditContactScreen
 
 /**
  * Navigation routes for the application
@@ -20,9 +19,12 @@ sealed class Screen(val route: String) {
         fun createRoute(contactId: String) = "contactDetail/$contactId"
     }
 
-    object AddContact : Screen("addContact")
-    object EditContact : Screen("editContact/{contactId}") {
-        fun createRoute(contactId: String) = "editContact/$contactId"
+    object AddContact : Screen("addContact?contactId={contactId}") {
+        // Base route for adding a new contact
+        const val baseRoute = "addContact"
+        
+        // For editing a contact
+        fun createRouteWithId(contactId: String) = "addContact?contactId=$contactId"
     }
 }
 
@@ -47,7 +49,7 @@ fun AppNavigation(
                     navController.navigate(Screen.ContactDetail.createRoute(contact.id))
                 },
                 onAddContactClick = {
-                    navController.navigate(Screen.AddContact.route)
+                    navController.navigate(Screen.AddContact.baseRoute)
                 }
             )
         }
@@ -59,34 +61,39 @@ fun AppNavigation(
             val contactId = backStackEntry.arguments?.getString("contactId") ?: ""
             ContactDetailScreen(
                 contactId = contactId,
-                onEditClick = { navController.navigate(Screen.EditContact.createRoute(contactId)) },
-                onBackClick = { navController.popBackStack() }
-            )
-        }
-
-        composable(Screen.AddContact.route) {
-            AddContactScreen(
-                onContactAdded = { 
-                    // Navigate to the contact list screen after adding a contact
-                    navController.navigate(Screen.ContactList.route) {
-                        // Clear the back stack up to the contact list
-                        popUpTo(Screen.ContactList.route) {
-                            inclusive = true
-                        }
-                    }
-                },
+                onEditClick = { navController.navigate(Screen.AddContact.createRouteWithId(contactId)) },
                 onBackClick = { navController.popBackStack() }
             )
         }
 
         composable(
-            route = Screen.EditContact.route,
-            arguments = listOf(navArgument("contactId") { type = NavType.StringType })
+            route = Screen.AddContact.route,
+            arguments = listOf(
+                navArgument("contactId") { 
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
         ) { backStackEntry ->
-            val contactId = backStackEntry.arguments?.getString("contactId") ?: ""
-            EditContactScreen(
+            val contactId = backStackEntry.arguments?.getString("contactId")
+            val isEditing = contactId != null
+            
+            AddContactScreen(
                 contactId = contactId,
-                onContactUpdated = { navController.popBackStack() },
+                onContactSaved = { 
+                    if (isEditing) {
+                        // When editing, just go back
+                        navController.popBackStack()
+                    } else {
+                        // When adding, navigate to contact list and clear back stack
+                        navController.navigate(Screen.ContactList.route) {
+                            popUpTo(Screen.ContactList.route) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                },
                 onBackClick = { navController.popBackStack() }
             )
         }

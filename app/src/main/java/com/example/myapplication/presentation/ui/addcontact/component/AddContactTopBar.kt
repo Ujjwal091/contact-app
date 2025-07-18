@@ -15,19 +15,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 
 /**
- * Top app bar for the add contact screen
+ * Top app bar for the add/edit contact screen
  *
+ * @param isEditMode Whether the screen is in edit mode
  * @param onBackClick Callback when the back button is clicked
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddContactTopBar(
+    isEditMode: Boolean = false,
     onBackClick: () -> Unit
 ) {
     TopAppBar(
         title = { 
             Text(
-                text = "Add Contact",
+                text = if (isEditMode) "Edit Contact" else "Add Contact",
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Medium
                 )
@@ -53,6 +55,18 @@ fun AddContactTopBar(
 fun AddContactTopBarPreview() {
     MaterialTheme {
         AddContactTopBar(
+            isEditMode = false,
+            onBackClick = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun EditContactTopBarPreview() {
+    MaterialTheme {
+        AddContactTopBar(
+            isEditMode = true,
             onBackClick = {}
         )
     }

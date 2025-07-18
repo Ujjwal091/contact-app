@@ -11,6 +11,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,25 +24,78 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.myapplication.domain.entity.Contact
 import com.example.myapplication.presentation.ui.addcontact.AddContactState
 
 /**
- * Content for the add contact screen
+ * Content for the add/edit contact screen
  *
- * @param state The state of the add contact screen
- * @param onAddContact Callback when a contact is added with name, phone, email, and company
+ * @param state The state of the add/edit contact screen
+ * @param isEditMode Whether the screen is in edit mode
+ * @param onSaveContact Callback when a contact is saved with name, phone, email, and company
  * @param onBackClick Callback when the back button is clicked
  */
 @Composable
 fun AddContactContent(
     state: AddContactState,
-    onAddContact: (name: String, phone: String, email: String, company: String) -> Unit,
-    onBackClick: () -> Unit
+    isEditMode: Boolean = false,
+    onSaveContact: (name: String, phone: String, email: String, company: String) -> Unit,
+    onBackClick: () -> Unit,
+    onHasUnsavedChanges: (Boolean) -> Unit = {}
 ) {
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var company by remember { mutableStateOf("") }
+    
+    // Store original values to detect changes
+    var originalName by remember { mutableStateOf("") }
+    var originalPhone by remember { mutableStateOf("") }
+    var originalEmail by remember { mutableStateOf("") }
+    var originalCompany by remember { mutableStateOf("") }
+    
+    // Function to check if there are unsaved changes
+    val hasUnsavedChanges = remember {
+        { 
+            name != originalName || 
+            phone != originalPhone || 
+            email != originalEmail || 
+            company != originalCompany 
+        }
+    }
+    
+    // Notify parent about unsaved changes whenever form values change
+    LaunchedEffect(name, phone, email, company) {
+        onHasUnsavedChanges(hasUnsavedChanges())
+    }
+    
+    // If in edit mode and we have contact data, prefill the form
+    LaunchedEffect(state) {
+        if (state is AddContactState.Editing) {
+            val contactName = state.contact.name
+            val contactPhone = state.contact.phone
+            val contactEmail = state.contact.email ?: ""
+            val contactCompany = state.contact.company ?: ""
+            
+            // Set current values
+            name = contactName
+            phone = contactPhone
+            email = contactEmail
+            company = contactCompany
+            
+            // Set original values
+            originalName = contactName
+            originalPhone = contactPhone
+            originalEmail = contactEmail
+            originalCompany = contactCompany
+        } else if (state is AddContactState.Initial) {
+            // For new contacts, set original values to empty
+            originalName = ""
+            originalPhone = ""
+            originalEmail = ""
+            originalCompany = ""
+        }
+    }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -67,7 +121,8 @@ fun AddContactContent(
                     onPhoneChange = { phone = it },
                     onEmailChange = { email = it },
                     onCompanyChange = { company = it },
-                    onSaveClick = { onAddContact(name, phone, email, company) }
+                    onSaveClick = { onSaveContact(name, phone, email, company) },
+                    isEditMode = isEditMode
                 )
             }
 
@@ -83,7 +138,8 @@ fun AddContactContent(
                     onPhoneChange = { phone = it },
                     onEmailChange = { email = it },
                     onCompanyChange = { company = it },
-                    onSaveClick = { onAddContact(name, phone, email, company) }
+                    onSaveClick = { onSaveContact(name, phone, email, company) },
+                    isEditMode = isEditMode
                 )
             }
 
@@ -98,11 +154,12 @@ fun AddContactContent(
                     onPhoneChange = { phone = it },
                     onEmailChange = { email = it },
                     onCompanyChange = { company = it },
-                    onSaveClick = { onAddContact(name, phone, email, company) },
+                    onSaveClick = { onSaveContact(name, phone, email, company) },
                     nameError = state.nameError,
                     phoneError = state.phoneError,
                     emailError = state.emailError,
-                    companyError = state.companyError
+                    companyError = state.companyError,
+                    isEditMode = isEditMode
                 )
             }
 
@@ -116,11 +173,63 @@ fun AddContactContent(
                     onPhoneChange = { phone = it },
                     onEmailChange = { email = it },
                     onCompanyChange = { company = it },
-                    onSaveClick = { onAddContact(name, phone, email, company) }
+                    onSaveClick = { onSaveContact(name, phone, email, company) },
+                    isEditMode = isEditMode
+                )
+            }
+            
+            is AddContactState.Editing -> {
+                AddContactForm(
+                    name = name,
+                    phone = phone,
+                    email = email,
+                    company = company,
+                    onNameChange = { name = it },
+                    onPhoneChange = { phone = it },
+                    onEmailChange = { email = it },
+                    onCompanyChange = { company = it },
+                    onSaveClick = { onSaveContact(name, phone, email, company) },
+                    isEditMode = isEditMode
+                )
+            }
+            
+            is AddContactState.NotFound -> {
+                // Not found state is handled by the parent component with a dialog
+                // But we still show an empty form
+                AddContactForm(
+                    name = name,
+                    phone = phone,
+                    email = email,
+                    company = company,
+                    onNameChange = { name = it },
+                    onPhoneChange = { phone = it },
+                    onEmailChange = { email = it },
+                    onCompanyChange = { company = it },
+                    onSaveClick = { onSaveContact(name, phone, email, company) },
+                    isEditMode = isEditMode
                 )
             }
         }
     }
+}
+
+/**
+ * For backward compatibility with existing code
+ */
+@Composable
+fun AddContactContent(
+    state: AddContactState,
+    onAddContact: (name: String, phone: String, email: String, company: String) -> Unit,
+    onBackClick: () -> Unit,
+    onHasUnsavedChanges: (Boolean) -> Unit = {}
+) {
+    AddContactContent(
+        state = state,
+        isEditMode = false,
+        onSaveContact = onAddContact,
+        onBackClick = onBackClick,
+        onHasUnsavedChanges = onHasUnsavedChanges
+    )
 }
 
 /**
@@ -136,13 +245,14 @@ class AddContactContentStateProvider : PreviewParameterProvider<AddContactState>
             nameError = "Name cannot be empty",
             phoneError = "Phone number cannot be empty"
         ),
-        AddContactState.FormError(
-            nameError = "Name cannot be empty",
-            phoneError = null
-        ),
-        AddContactState.FormError(
-            nameError = null,
-            phoneError = "Phone number cannot be empty"
+        AddContactState.Editing(
+            Contact(
+                id = "1",
+                name = "John Doe",
+                phone = "+1 123 456 7890",
+                email = "john.doe@example.com",
+                company = "Example Corp"
+            )
         )
     )
 }
@@ -158,7 +268,8 @@ fun AddContactContentPreview(
     MaterialTheme {
         AddContactContent(
             state = state,
-            onAddContact = { _, _, _, _ -> },
+            isEditMode = state is AddContactState.Editing,
+            onSaveContact = { _, _, _, _ -> },
             onBackClick = {}
         )
     }

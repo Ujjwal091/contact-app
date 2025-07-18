@@ -6,8 +6,7 @@ A modern Android contact management application built with Jetpack Compose and C
 
 - **Contact List**: View all contacts in a clean, organized list
 - **Contact Details**: View detailed information about each contact
-- **Add Contact**: Create new contacts with comprehensive information
-- **Edit Contact**: Update existing contact information
+- **Add/Edit Contact**: Create new contacts or update existing ones with comprehensive information
 - **Delete Contact**: Remove contacts with confirmation dialog
 - **Permissions Handling**: Proper Android contacts permissions management
 - **Modern UI**: Material 3 design with Jetpack Compose
@@ -116,16 +115,13 @@ These permissions are requested at runtime when the app starts.
 - Options to edit or delete the contact
 - Clean, card-based layout for easy reading
 
-### 3. Add Contact Screen
-- Form to create new contacts
-- Input fields for name, phone, email, address, company
+### 3. Add/Edit Contact Screen
+- Form to create new contacts or edit existing ones
+- Input fields for name, phone, email, company
+- Pre-populated form when editing existing contacts
 - Validation and error handling
-- Save and cancel options
-
-### 4. Edit Contact Screen
-- Pre-populated form with existing contact data
-- Same fields as Add Contact screen
-- Update and cancel options
+- Save/Update and cancel options
+- Adaptive UI that changes based on add or edit mode
 
 ## 🏛️ Project Structure
 
@@ -161,10 +157,9 @@ com.example.myapplication/
     ├── component/
     │   └── ContactAvatar.kt         # Reusable components
     └── ui/
-        ├── addcontact/              # Add contact feature
+        ├── addcontact/              # Add/Edit contact feature
         ├── contactdetail/           # Contact detail feature
         ├── contactlist/             # Contact list feature
-        ├── editcontact/             # Edit contact feature
         ├── permissions/             # Permission handling
         └── theme/                   # App theming
 ```

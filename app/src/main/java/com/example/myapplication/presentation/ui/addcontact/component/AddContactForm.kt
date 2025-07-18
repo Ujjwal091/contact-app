@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.example.myapplication.presentation.component.ContactAvatar
 
 /**
- * Form for adding a new contact
+ * Form for adding or editing a contact
  *
  * @param name The current name value
  * @param phone The current phone value
@@ -33,6 +33,11 @@ import com.example.myapplication.presentation.component.ContactAvatar
  * @param onCompanyChange Callback when the company is changed
  * @param onSaveClick Callback when the save button is clicked
  * @param isLoading Whether the form is in a loading state
+ * @param isEditMode Whether the form is in edit mode
+ * @param nameError Error message for the name field, null if no error
+ * @param phoneError Error message for the phone field, null if no error
+ * @param emailError Error message for the email field, null if no error
+ * @param companyError Error message for the company field, null if no error
  */
 @Composable
 fun AddContactForm(
@@ -46,6 +51,7 @@ fun AddContactForm(
     onCompanyChange: (String) -> Unit,
     onSaveClick: () -> Unit,
     isLoading: Boolean = false,
+    isEditMode: Boolean = false,
     nameError: String? = null,
     phoneError: String? = null,
     emailError: String? = null,
@@ -90,7 +96,7 @@ fun AddContactForm(
             shape = MaterialTheme.shapes.medium,
             enabled = !isLoading
         ) {
-            Text("Save Contact")
+            Text(if (isEditMode) "Update Contact" else "Save Contact")
         }
     }
 }
@@ -104,6 +110,7 @@ data class AddContactFormParams(
     val email: String,
     val company: String,
     val isLoading: Boolean = false,
+    val isEditMode: Boolean = false,
     val nameError: String? = null,
     val phoneError: String? = null,
     val emailError: String? = null,
@@ -133,6 +140,13 @@ class AddContactFormParamsProvider : PreviewParameterProvider<AddContactFormPara
             email = "jane.smith@company.com",
             company = "Tech Solutions",
             isLoading = true
+        ),
+        AddContactFormParams(
+            name = "Bob Wilson",
+            phone = "+1 555 0123",
+            email = "bob.wilson@example.com",
+            company = "Example Inc",
+            isEditMode = true
         ),
         AddContactFormParams(
             name = "",
@@ -179,6 +193,7 @@ fun AddContactFormPreview(
             onCompanyChange = {},
             onSaveClick = {},
             isLoading = params.isLoading,
+            isEditMode = params.isEditMode,
             nameError = params.nameError,
             phoneError = params.phoneError,
             emailError = params.emailError,
