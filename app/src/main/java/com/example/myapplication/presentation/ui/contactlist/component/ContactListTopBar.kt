@@ -18,7 +18,7 @@ fun ContactListTopBar(
         title = {
             Column {
                 Text(
-                    text = "Phone",
+                    text = "Contacts",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
                 )
                 if (state is ContactListState.Success) {
