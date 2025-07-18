@@ -45,7 +45,7 @@ fun ContactInfoItem(
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .then(
-                if (isPhone) {
+                if (isPhone && value.isNotEmpty()) {
                     Modifier.combinedClickable(
                         onClick = {
                             // Open dialer with phone number
