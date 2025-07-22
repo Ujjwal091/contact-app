@@ -25,7 +25,7 @@ fun AddContactScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val isEditMode = contactId != null
-    
+
     // Load contact or reset state when entering the screen
     LaunchedEffect(contactId) {
         if (contactId != null) {
@@ -37,7 +37,7 @@ fun AddContactScreen(
 
     var showErrorDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
-    
+
     // State for tracking unsaved changes
     var hasUnsavedChanges by remember { mutableStateOf(false) }
     var showUnsavedChangesDialog by remember { mutableStateOf(false) }
@@ -57,7 +57,7 @@ fun AddContactScreen(
             is AddContactState.FormError -> {
                 // Field errors are handled inline, no dialog needed
             }
-            
+
             is AddContactState.NotFound -> {
                 errorMessage = "Contact not found"
                 showErrorDialog = true
@@ -66,7 +66,7 @@ fun AddContactScreen(
             else -> {}
         }
     }
-    
+
     // Custom back handler that checks for unsaved changes
     val handleBackClick = {
         if (hasUnsavedChanges) {
@@ -77,7 +77,7 @@ fun AddContactScreen(
             onBackClick()
         }
     }
-    
+
     // Handle system back button press
     BackHandler(enabled = true) {
         handleBackClick()

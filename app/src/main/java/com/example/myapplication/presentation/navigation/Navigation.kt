@@ -22,7 +22,7 @@ sealed class Screen(val route: String) {
     object AddContact : Screen("addContact?contactId={contactId}") {
         // Base route for adding a new contact
         const val baseRoute = "addContact"
-        
+
         // For editing a contact
         fun createRouteWithId(contactId: String) = "addContact?contactId=$contactId"
     }
@@ -69,7 +69,7 @@ fun AppNavigation(
         composable(
             route = Screen.AddContact.route,
             arguments = listOf(
-                navArgument("contactId") { 
+                navArgument("contactId") {
                     type = NavType.StringType
                     nullable = true
                     defaultValue = null
@@ -78,10 +78,10 @@ fun AppNavigation(
         ) { backStackEntry ->
             val contactId = backStackEntry.arguments?.getString("contactId")
             val isEditing = contactId != null
-            
+
             AddContactScreen(
                 contactId = contactId,
-                onContactSaved = { 
+                onContactSaved = {
                     if (isEditing) {
                         // When editing, just go back
                         navController.popBackStack()

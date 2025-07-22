@@ -26,7 +26,7 @@ class AddContactViewModel(
 
     private val _state = MutableStateFlow<AddContactState>(AddContactState.Initial)
     val state: StateFlow<AddContactState> = _state
-    
+
     // Track whether we're in edit mode
     private var isEditMode = false
     private var contactIdToEdit: String? = null
@@ -52,7 +52,7 @@ class AddContactViewModel(
     private fun isValidEmail(email: String): Boolean {
         return email.contains("@") && email.contains(".")
     }
-    
+
     /**
      * Loads a contact by ID for editing
      *
@@ -61,7 +61,7 @@ class AddContactViewModel(
     fun loadContact(contactId: String) {
         isEditMode = true
         contactIdToEdit = contactId
-        
+
         viewModelScope.launch {
             try {
                 _state.value = AddContactState.Loading
@@ -105,7 +105,7 @@ class AddContactViewModel(
         } else null
         val companyError: String? = null // Company is optional, no validation needed
 
-        if (nameError != null || phoneError != null || emailError != null || companyError != null) {
+        if (nameError != null || phoneError != null || emailError != null) {
             _state.value = AddContactState.FormError(
                 nameError = nameError,
                 phoneError = phoneError,
@@ -126,7 +126,7 @@ class AddContactViewModel(
                         _state.value = AddContactState.Error("Contact not found")
                         return@launch
                     }
-                    
+
                     // Create updated contact with same ID but new fields
                     val updatedContact = currentContact.copy(
                         name = name,
@@ -134,7 +134,7 @@ class AddContactViewModel(
                         email = email.ifBlank { null },
                         company = company.ifBlank { null },
                     )
-                    
+
                     updateContactUseCase(updatedContact)
                 } else {
                     // Add new contact
@@ -145,7 +145,7 @@ class AddContactViewModel(
                         email = email.ifBlank { null },
                         company = company.ifBlank { null },
                     )
-                    
+
                     addContactUseCase(contact)
                 }
 
@@ -161,19 +161,6 @@ class AddContactViewModel(
                 _state.value = AddContactState.Error("Error $action contact: ${e.localizedMessage}")
             }
         }
-    }
-    
-    /**
-     * For backward compatibility with existing code
-     */
-    fun addContact(
-        name: String,
-        phone: String,
-        email: String = "",
-        company: String = "",
-        onSuccess: () -> Unit = {}
-    ) {
-        saveContact(name, phone, email, company, onSuccess)
     }
 
     /**

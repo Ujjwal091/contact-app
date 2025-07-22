@@ -42,14 +42,14 @@ sealed class AddContactState {
         val emailError: String? = null,
         val companyError: String? = null
     ) : AddContactState()
-    
+
     /**
      * Editing state when contact details are loaded and ready for editing
      *
      * @param contact The contact being edited
      */
     data class Editing(val contact: Contact) : AddContactState()
-    
+
     /**
      * State when the contact is not found
      */

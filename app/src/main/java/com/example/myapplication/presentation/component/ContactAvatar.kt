@@ -26,14 +26,14 @@ fun getFirstValidCharacter(name: String): String {
     if (trimmedName.isEmpty()) {
         return "?"
     }
-    
+
     // Find the first letter or digit in the name
     for (char in trimmedName) {
         if (char.isLetterOrDigit()) {
             return char.toString().uppercase()
         }
     }
-    
+
     // If no valid character is found, return "?"
     return "?"
 }

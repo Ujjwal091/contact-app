@@ -32,9 +32,11 @@ val appModule = module {
     // ViewModels
     viewModel { ContactListViewModel(get()) }
     viewModel { ContactDetailViewModel(get(), get()) }
-    viewModel { AddContactViewModel(
-        addContactUseCase = get(),
-        getContactByIdUseCase = get(),
-        updateContactUseCase = get()
-    ) }
+    viewModel {
+        AddContactViewModel(
+            addContactUseCase = get(),
+            getContactByIdUseCase = get(),
+            updateContactUseCase = get()
+        )
+    }
 }

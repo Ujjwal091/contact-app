@@ -7,7 +7,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.example.myapplication.presentation.ui.addcontact.AddContactState
-import com.example.myapplication.presentation.ui.addcontact.component.UnsavedChangesDialog
 
 /**
  * Content wrapper for the add/edit contact screen that includes the scaffold, content, and dialogs
@@ -72,7 +71,7 @@ fun AddContactScreenContent(
             }
         )
     }
-    
+
     // Unsaved changes dialog
     if (showUnsavedChangesDialog) {
         UnsavedChangesDialog(
