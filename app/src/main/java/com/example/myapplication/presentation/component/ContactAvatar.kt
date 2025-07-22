@@ -15,6 +15,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
+ * Extracts the first valid alphanumeric character from a string.
+ * Skips over emojis and special characters.
+ *
+ * @param name The input string
+ * @return The first valid character in uppercase, or "?" if no valid character is found
+ */
+fun getFirstValidCharacter(name: String): String {
+    val trimmedName = name.trim()
+    if (trimmedName.isEmpty()) {
+        return "?"
+    }
+    
+    // Find the first letter or digit in the name
+    for (char in trimmedName) {
+        if (char.isLetterOrDigit()) {
+            return char.toString().uppercase()
+        }
+    }
+    
+    // If no valid character is found, return "?"
+    return "?"
+}
+
+/**
  * Avatar for a contact
  *
  * @param name The name of the contact
@@ -32,7 +56,7 @@ fun ContactAvatar(name: String) {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = name.trim().firstOrNull()?.toString()?.uppercase() ?: "?",
+                text = getFirstValidCharacter(name),
                 fontSize = 48.sp,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontWeight = FontWeight.Bold

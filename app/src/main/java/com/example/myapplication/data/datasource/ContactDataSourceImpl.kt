@@ -3,20 +3,32 @@ package com.example.myapplication.data.datasource
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.provider.ContactsContract
+import com.example.myapplication.data.model.BasicContactModel
 import com.example.myapplication.data.model.ContactModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Implementation of ContactDataSource that uses ContentResolver to access the device's contacts database.
  */
 class ContactDataSourceImpl(private val contentResolver: ContentResolver) : ContactDataSource {
 
-    override fun fetchAllContacts(): List<ContactModel> {
-        val contactsMap = mutableMapOf<String, ContactModel>()
+    override suspend fun fetchAllContacts(): List<BasicContactModel> = withContext(Dispatchers.IO) {
+        val seenIds = HashSet<String>(1000)
+        val contactsList = ArrayList<BasicContactModel>(1000)
 
-        // First, get basic contact info (ID, name, phone)
+        val projection = arrayOf(
+            ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+            ContactsContract.CommonDataKinds.Phone.NUMBER
+        )
+
         val cursor = contentResolver.query(
             ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-            null, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE NOCASE ASC"
+            projection,
+            null,
+            null,
+            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE NOCASE ASC"
         )
 
         cursor?.use {
@@ -26,27 +38,22 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
 
             while (it.moveToNext()) {
                 val id = it.getString(idIndex)
-                // Only add the contact if we haven't seen this ID before
-                if (!contactsMap.containsKey(id)) {
-                    contactsMap[id] = ContactModel(
-                        id = id,
-                        name = it.getString(nameIndex),
-                        phone = it.getString(phoneIndex),
-                        email = null,
-                        address = null,
-                        company = null,
-                        imageUrl = null
+                if (seenIds.add(id)) {
+                    contactsList.add(
+                        BasicContactModel(
+                            id = id,
+                            name = it.getString(nameIndex),
+                            phone = it.getString(phoneIndex)
+                        )
                     )
                 }
             }
         }
 
-        // Return the basic contact info without fetching additional details
-        // This makes the initial load much faster
-        return contactsMap.values.toList()
+        contactsList
     }
 
-    override fun fetchContactById(id: String): ContactModel? {
+    override suspend fun fetchContactById(id: String): ContactModel? = withContext(Dispatchers.IO) {
         var name = ""
         var phone = ""
         var email: String? = null
@@ -102,7 +109,7 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
                 }
             } else {
                 // Contact not found
-                return null
+                return@withContext null
             }
         }
 
@@ -161,7 +168,7 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
             }
         }
 
-        return ContactModel(
+        ContactModel(
             id = id,
             name = name,
             phone = phone,
@@ -172,7 +179,7 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
         )
     }
 
-    override fun addContact(contact: ContactModel): Boolean {
+    override suspend fun addContact(contact: ContactModel): Boolean = withContext(Dispatchers.IO) {
         try {
             val values = ContentValues().apply {
                 put(ContactsContract.RawContacts.ACCOUNT_TYPE, null as String?)
@@ -180,7 +187,7 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
             }
 
             val rawContactUri = contentResolver.insert(ContactsContract.RawContacts.CONTENT_URI, values)
-            val rawContactId = rawContactUri?.lastPathSegment?.toLongOrNull() ?: return false
+            val rawContactId = rawContactUri?.lastPathSegment?.toLongOrNull() ?: return@withContext false
 
             // Add name
             val nameValues = ContentValues().apply {
@@ -241,25 +248,25 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
                 contentResolver.insert(ContactsContract.Data.CONTENT_URI, companyValues)
             }
 
-            return true
+            true
         } catch (e: Exception) {
             e.printStackTrace()
-            return false
+            false
         }
     }
 
-    override fun deleteContact(id: String): Boolean {
+    override suspend fun deleteContact(id: String): Boolean = withContext(Dispatchers.IO) {
         val uri = ContactsContract.RawContacts.CONTENT_URI
         val where = ContactsContract.RawContacts.CONTACT_ID + " = ?"
         val args = arrayOf(id)
         val deletedRows = contentResolver.delete(uri, where, args)
-        return deletedRows > 0
+        deletedRows > 0
     }
 
-    override fun updateContact(contact: ContactModel): Boolean {
+    override suspend fun updateContact(contact: ContactModel): Boolean = withContext(Dispatchers.IO) {
         try {
             // First, find the raw contact ID for this contact
-            val rawContactId = getRawContactId(contact.id) ?: return false
+            val rawContactId = getRawContactId(contact.id) ?: return@withContext false
             var updateSuccess = false
 
             // Update name
@@ -443,10 +450,10 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
                 }
             }
 
-            return updateSuccess
+            updateSuccess
         } catch (e: Exception) {
             e.printStackTrace()
-            return false
+            false
         }
     }
 
@@ -456,7 +463,7 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
      * @param contactId The contact ID
      * @return The raw contact ID, or null if not found
      */
-    private fun getRawContactId(contactId: String): Long? {
+    private suspend fun getRawContactId(contactId: String): Long? = withContext(Dispatchers.IO) {
         val cursor = contentResolver.query(
             ContactsContract.RawContacts.CONTENT_URI,
             arrayOf(ContactsContract.RawContacts._ID),
@@ -465,7 +472,7 @@ class ContactDataSourceImpl(private val contentResolver: ContentResolver) : Cont
             null
         )
 
-        return cursor?.use {
+        cursor?.use {
             if (it.moveToFirst()) {
                 val idIndex = it.getColumnIndex(ContactsContract.RawContacts._ID)
                 it.getLong(idIndex)

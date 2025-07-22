@@ -24,3 +24,33 @@ fun Contact.toModel(): ContactModel =
         company = company,
         imageUrl = imageUrl
     )
+
+/**
+ * Converts a BasicContactModel to a full ContactModel with null values for additional fields.
+ * Used when we need to convert from the lightweight model to the full model.
+ */
+fun BasicContactModel.toContactModel(): ContactModel =
+    ContactModel(
+        id = id,
+        name = name,
+        phone = phone,
+        email = null,
+        address = null,
+        company = null,
+        imageUrl = null
+    )
+
+/**
+ * Converts a BasicContactModel directly to a Contact domain entity.
+ * Used for efficient mapping in the repository layer.
+ */
+fun BasicContactModel.toDomain(): Contact =
+    Contact(
+        id = id,
+        name = name,
+        phone = phone,
+        email = null,
+        address = null,
+        company = null,
+        imageUrl = null
+    )
